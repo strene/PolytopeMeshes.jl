@@ -131,7 +131,7 @@ end
     compute_geometry!(G::UnstructuredMesh)
 
 Compute face areas, normals, centroids, and cell volumes and centroids.
-Currently supports 2D meshs.
+Currently supports 2D meshes.
 """
 function compute_geometry!(G::UnstructuredMesh)
     if G.meshdim == 2

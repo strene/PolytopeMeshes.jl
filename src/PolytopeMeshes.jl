@@ -8,7 +8,7 @@ Based on the UPR module from MRST (MATLAB Reservoir Simulation Toolbox).
 
 Reference:
   Berge, R.L., Klemetsdal, Ø.S. & Lie, K.-A. (2019).
-  "Unstructured Voronoi meshs conforming to lower dimensional objects."
+  "Unstructured Voronoi meshes conforming to lower dimensional objects."
   Computational Geosciences, 23, 169–188.
 """
 module PolytopeMeshes

@@ -92,7 +92,7 @@ The mesh follows the MRST unstructured mesh format:
 
 ## References
 
-- Berge, R.L., Klemetsdal, Ø.S. & Lie, K.-A. (2019). "Unstructured Voronoi meshs
+- Berge, R.L., Klemetsdal, Ø.S. & Lie, K.-A. (2019). "Unstructured Voronoi meshes
   conforming to lower dimensional objects." *Computational Geosciences*, 23, 169–188.
   https://doi.org/10.1007/s10596-018-9790-0
 
