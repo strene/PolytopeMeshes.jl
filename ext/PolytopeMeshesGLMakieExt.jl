@@ -81,7 +81,7 @@ function PolytopeMeshes.plot_mesh(
         )
     end
 
-    return fig, ax
+    return fig
 end
 
 end # module PolytopeMeshesGLMakieExt
