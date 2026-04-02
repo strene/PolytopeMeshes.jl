@@ -4,7 +4,7 @@ Ported from MRST's clippedPebi2D.
 """
 
 """
-    clipped_voronoi_2d(p, bnd)
+    clipped_voronoi_2d(p, bnd; triangulation=default_triangulation_backend())
 
 Construct a 2D Voronoi mesh by computing the Voronoi diagram of points `p`
 clipped to the polygon `bnd`.
@@ -12,6 +12,10 @@ clipped to the polygon `bnd`.
 # Arguments
 - `p`: n×2 array of Voronoi site coordinates
 - `bnd`: k×2 array of polygon boundary vertices (clockwise or counter-clockwise)
+
+# Keyword Arguments
+- `triangulation`: A [`TriangulationBackend`](@ref) instance to use for Delaunay
+  triangulation (default: [`default_triangulation_backend()`](@ref))
 
 # Returns
 - `G::UnstructuredMesh`: Valid mesh definition
@@ -23,11 +27,12 @@ bnd = [0.0 0.0; 1.0 0.0; 1.0 1.0; 0.0 1.0]
 G = clipped_voronoi_2d(p, bnd)
 ```
 """
-function clipped_voronoi_2d(p::Matrix{Float64}, bnd::Matrix{Float64})
+function clipped_voronoi_2d(p::Matrix{Float64}, bnd::Matrix{Float64};
+    triangulation::TriangulationBackend = default_triangulation_backend())
     n_sites = size(p, 1)
 
     # Compute Delaunay triangulation
-    tri = _delaunay_2d(p)
+    tri = triangulate_2d(triangulation, p)
     edges = _get_edges(tri)
 
     # For each Voronoi cell, clip against boundary
@@ -293,6 +298,10 @@ function _delaunay_2d(points::Matrix{Float64})
     end
 
     return reduce(vcat, [r' for r in result])
+end
+
+function triangulate_2d(::BowyerWatson, points::Matrix{Float64})
+    return _delaunay_2d(points)
 end
 
 """
