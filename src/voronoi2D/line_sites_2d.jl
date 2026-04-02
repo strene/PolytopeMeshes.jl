@@ -4,13 +4,13 @@ Ported from MRST's lineSites2D.
 """
 
 """
-    line_sites_2d(cell_constraints, cc_grid_size; kwargs...)
+    line_sites_2d(cell_constraints, cc_mesh_size; kwargs...)
 
 Place sites along given lines (cell constraints / wells).
 
 # Arguments
 - `cell_constraints`: Vector of n×2 matrices defining constraint paths
-- `cc_grid_size`: Desired distance between sites along constraints
+- `cc_mesh_size`: Desired distance between sites along constraints
 
 # Keyword Arguments
 - `se_ptn`: Start/end position offsets per constraint (n×2 matrix)
@@ -23,19 +23,19 @@ Place sites along given lines (cell constraints / wells).
 
 # Returns
 - `cc_pts`: All generated constraint sites (n×2)
-- `c_gs`: Grid spacing for each site
+- `c_gs`: Mesh spacing for each site
 - `prot_pts`: Protection layer sites (n×2)
 - `p_gs`: Protection layer spacings
 """
 function line_sites_2d(
     cell_constraints::Vector{Matrix{Float64}},
-    cc_grid_size::Float64;
+    cc_mesh_size::Float64;
     se_ptn::Matrix{Float64} = zeros(length(cell_constraints), 2),
     cf_cut::Vector{Int} = zeros(Int, length(cell_constraints)),
     c_cut::Vector{Int} = zeros(Int, length(cell_constraints)),
     prot_layer::Bool = false,
-    prot_d::Vector = Function[p -> ones(size(p, 1)) * cc_grid_size / 10],
-    cc_rho::Function = x -> cc_grid_size * ones(size(x, 1)),
+    prot_d::Vector = Function[p -> ones(size(p, 1)) * cc_mesh_size / 10],
+    cc_rho::Function = x -> cc_mesh_size * ones(size(x, 1)),
     interpolate_cc::Union{Bool,Vector{Bool}} = false
 )
     nc = length(cell_constraints)
@@ -61,9 +61,9 @@ function line_sites_2d(
         if size(constraint, 1) == 1
             # Point constraint
             p = copy(constraint)
-            well_space = [cc_grid_size]
+            well_space = [cc_mesh_size]
         else
-            p = inter_line_path(constraint, cc_rho, cc_grid_size,
+            p = inter_line_path(constraint, cc_rho, cc_mesh_size,
                 se_ptn[i, :], interpolate_cc[i])
             if isempty(p) || size(p, 1) == 0
                 continue

@@ -1,9 +1,9 @@
 # Well Branching
 #
 # This example demonstrates a branching well with several well
-# intersections, using composite_pebi_grid_2d with cell constraints.
+# intersections, using composite_voronoi_mesh_2d with cell constraints.
 # Multi-level quadtree (MLQT) refinement is used to gradually refine
-# the grid near the well paths.
+# the mesh near the well paths.
 #
 # Based on: MRST 2d/wellBranching.m
 
@@ -27,19 +27,19 @@ end
 println()
 
 ## Set gridding parameters
-gS  = 1.0 / 24          # Grid size
+gS  = 1.0 / 24          # Mesh size
 wGf = 0.25               # Relative size of well cells
 nRs = 2                  # Number of MLQT refinement levels
 
-## Create composite PEBI grid
-G, pts, F = composite_pebi_grid_2d([gS, gS], [1.0, 1.0];
+## Create composite Voronoi mesh
+G, pts, F = composite_voronoi_mesh_2d([gS, gS], [1.0, 1.0];
     cell_constraints=wells,
     cc_factor=wGf,
     mlqt_max_level=nRs)
 
 compute_geometry!(G)
 
-println("=== Grid Statistics ===")
+println("=== Mesh Statistics ===")
 println("  Cells: $(G.cells.num)")
 println("  Faces: $(G.faces.num)")
 println("  Nodes: $(G.nodes.num)")

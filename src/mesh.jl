@@ -63,39 +63,39 @@ mutable struct NodeData
 end
 
 """
-    UnstructuredGrid
+    UnstructuredMesh
 
-An unstructured grid data structure compatible with the MRST grid format.
+An unstructured mesh data structure compatible with the MRST mesh format.
 
 # Fields
 - `cells`: Cell (volume element) information
 - `faces`: Face (surface element) information
 - `nodes`: Node (vertex) information
-- `griddim`: Grid dimension (2 or 3)
-- `type`: Grid type identifier
+- `meshdim`: Mesh dimension (2 or 3)
+- `type`: Mesh type identifier
 """
-mutable struct UnstructuredGrid
+mutable struct UnstructuredMesh
     cells::CellData
     faces::FaceData
     nodes::NodeData
-    griddim::Int
+    meshdim::Int
     type::Vector{String}
 end
 
 """
-    UnstructuredGrid(nodes_coords, cell_faces, cell_facePos, face_nodes,
-                     face_nodePos, face_neighbors; griddim=2)
+    UnstructuredMesh(nodes_coords, cell_faces, cell_facePos, face_nodes,
+                     face_nodePos, face_neighbors; meshdim=2)
 
-Construct an `UnstructuredGrid` from topology arrays.
+Construct an `UnstructuredMesh` from topology arrays.
 """
-function UnstructuredGrid(
+function UnstructuredMesh(
     node_coords::Matrix{Float64},
     cell_faces::Vector{Int},
     cell_facePos::Vector{Int},
     face_nodes::Vector{Int},
     face_nodePos::Vector{Int},
     face_neighbors::Matrix{Int};
-    griddim::Int = 2
+    meshdim::Int = 2
 )
     num_cells = length(cell_facePos) - 1
     num_faces = length(face_nodePos) - 1
@@ -124,17 +124,17 @@ function UnstructuredGrid(
 
     nodes = NodeData(num_nodes, node_coords)
 
-    return UnstructuredGrid(cells, faces, nodes, griddim, ["PolytopeMeshes"])
+    return UnstructuredMesh(cells, faces, nodes, meshdim, ["PolytopeMeshes"])
 end
 
 """
-    compute_geometry!(G::UnstructuredGrid)
+    compute_geometry!(G::UnstructuredMesh)
 
 Compute face areas, normals, centroids, and cell volumes and centroids.
-Currently supports 2D grids.
+Currently supports 2D meshs.
 """
-function compute_geometry!(G::UnstructuredGrid)
-    if G.griddim == 2
+function compute_geometry!(G::UnstructuredMesh)
+    if G.meshdim == 2
         _compute_geometry_2d!(G)
     else
         error("3D geometry computation not yet implemented")
@@ -142,7 +142,7 @@ function compute_geometry!(G::UnstructuredGrid)
     return G
 end
 
-function _compute_geometry_2d!(G::UnstructuredGrid)
+function _compute_geometry_2d!(G::UnstructuredMesh)
     coords = G.nodes.coords
     nf = G.faces.num
     nc = G.cells.num

@@ -1,9 +1,9 @@
 # PolytopeMeshes.jl
 
-A Julia package for generating conforming Voronoi meshes (PEBI grids) that adapt
+A Julia package for generating conforming Voronoi meshes (Voronoi meshes) that adapt
 to geological features such as faults, fractures, and wells.
 
-Based on the UPR (Unstructured PEBI-grids for Reservoir) module from the
+Based on the UPR (Unstructured Voronoi-meshes for Reservoir) module from the
 [MATLAB Reservoir Simulation Toolbox (MRST)](https://github.com/SINTEF-AppliedCompSci/MRST/tree/main/modules/upr).
 
 ## Installation
@@ -18,20 +18,20 @@ Pkg.add(url="https://github.com/strene/PolytopeMeshes.jl")
 ```julia
 using PolytopeMeshes
 
-# Create a basic Voronoi grid
-G, pts, F = composite_pebi_grid_2d([0.1, 0.1], [1.0, 1.0])
+# Create a basic Voronoi mesh
+G, pts, F = composite_voronoi_mesh_2d([0.1, 0.1], [1.0, 1.0])
 
-# Create a grid with a well (cell constraint) and a fault (face constraint)
+# Create a mesh with a well (cell constraint) and a fault (face constraint)
 well = [Float64[0.2 0.8; 0.8 0.2]]
 fault = [Float64[0.2 0.2; 0.8 0.8]]
-G, pts, F = composite_pebi_grid_2d([0.1, 0.1], [1.0, 1.0];
+G, pts, F = composite_voronoi_mesh_2d([0.1, 0.1], [1.0, 1.0];
     cell_constraints=well,
     face_constraints=fault)
 
 # Compute geometric quantities
 compute_geometry!(G)
 
-# Access grid data (MRST-compatible format)
+# Access mesh data (MRST-compatible format)
 G.cells.num        # Number of cells
 G.cells.volumes    # Cell volumes
 G.cells.centroids  # Cell centroids
@@ -41,9 +41,9 @@ G.faces.neighbors  # Face-to-cell connectivity
 G.nodes.coords     # Node coordinates
 ```
 
-## Grid Data Structure
+## Mesh Data Structure
 
-The grid follows the MRST unstructured grid format:
+The mesh follows the MRST unstructured mesh format:
 
 | Field | Description |
 |-------|-------------|
@@ -65,12 +65,12 @@ The grid follows the MRST unstructured grid format:
 
 ## Main Functions
 
-### Grid Generation
+### Mesh Generation
 
-- **`composite_pebi_grid_2d(celldim, pdims; kwargs...)`** — Main entry point.
-  Creates a composite PEBI grid with a Cartesian background refined around constraints.
+- **`composite_voronoi_mesh_2d(celldim, pdims; kwargs...)`** — Main entry point.
+  Creates a composite Voronoi mesh with a Cartesian background refined around constraints.
 
-- **`clipped_pebi_2d(pts, bnd)`** — Creates a Voronoi grid from sites clipped to a polygon boundary.
+- **`clipped_voronoi_2d(pts, bnd)`** — Creates a Voronoi mesh from sites clipped to a polygon boundary.
 
 ### Constraint Site Generation
 
@@ -92,7 +92,7 @@ The grid follows the MRST unstructured grid format:
 
 ## References
 
-- Berge, R.L., Klemetsdal, Ø.S. & Lie, K.-A. (2019). "Unstructured Voronoi grids
+- Berge, R.L., Klemetsdal, Ø.S. & Lie, K.-A. (2019). "Unstructured Voronoi meshs
   conforming to lower dimensional objects." *Computational Geosciences*, 23, 169–188.
   https://doi.org/10.1007/s10596-018-9790-0
 

@@ -48,15 +48,15 @@ println()
 
 ## 3. fc_factor comparison
 # fc_factor controls the distance between face constraint sites relative
-# to the background grid size.
+# to the background mesh size.
 println("=== 3. fc_factor Comparison ===")
 f = [Float64[0.2 0.3; 0.5 0.5; 0.8 0.5]]
 
-G1, _, _ = composite_pebi_grid_2d([0.1, 0.1], [1.0, 1.0];
+G1, _, _ = composite_voronoi_mesh_2d([0.1, 0.1], [1.0, 1.0];
     face_constraints=f, fc_factor=1.0)
-G2, _, _ = composite_pebi_grid_2d([0.1, 0.1], [1.0, 1.0];
+G2, _, _ = composite_voronoi_mesh_2d([0.1, 0.1], [1.0, 1.0];
     face_constraints=f, fc_factor=0.5)
-G3, _, _ = composite_pebi_grid_2d([0.1, 0.1], [1.0, 1.0];
+G3, _, _ = composite_voronoi_mesh_2d([0.1, 0.1], [1.0, 1.0];
     face_constraints=f, fc_factor=0.25)
 println("  fc_factor=1.0  → Cells: $(G1.cells.num)")
 println("  fc_factor=0.5  → Cells: $(G2.cells.num)")
@@ -68,11 +68,11 @@ println()
 # sites. Must be in (0.5, 1.0). Larger values create more elongated cells.
 println("=== 4. circle_factor Comparison ===")
 
-G1, _, _ = composite_pebi_grid_2d([0.1, 0.1], [1.0, 1.0];
+G1, _, _ = composite_voronoi_mesh_2d([0.1, 0.1], [1.0, 1.0];
     face_constraints=f, circle_factor=0.55)
-G2, _, _ = composite_pebi_grid_2d([0.1, 0.1], [1.0, 1.0];
+G2, _, _ = composite_voronoi_mesh_2d([0.1, 0.1], [1.0, 1.0];
     face_constraints=f, circle_factor=0.7)
-G3, _, _ = composite_pebi_grid_2d([0.1, 0.1], [1.0, 1.0];
+G3, _, _ = composite_voronoi_mesh_2d([0.1, 0.1], [1.0, 1.0];
     face_constraints=f, circle_factor=0.9)
 println("  circle_factor=0.55 → Cells: $(G1.cells.num)")
 println("  circle_factor=0.7  → Cells: $(G2.cells.num)")

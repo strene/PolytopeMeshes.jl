@@ -1,12 +1,12 @@
 """
-Construct a 2D clipped PEBI (Voronoi) grid.
+Construct a 2D clipped Voronoi mesh.
 Ported from MRST's clippedPebi2D.
 """
 
 """
-    clipped_pebi_2d(p, bnd)
+    clipped_voronoi_2d(p, bnd)
 
-Construct a 2D PEBI grid by computing the Voronoi diagram of points `p`
+Construct a 2D Voronoi mesh by computing the Voronoi diagram of points `p`
 clipped to the polygon `bnd`.
 
 # Arguments
@@ -14,16 +14,16 @@ clipped to the polygon `bnd`.
 - `bnd`: k×2 array of polygon boundary vertices (clockwise or counter-clockwise)
 
 # Returns
-- `G::UnstructuredGrid`: Valid grid definition
+- `G::UnstructuredMesh`: Valid mesh definition
 
 # Example
 ```julia
 p = rand(30, 2)
 bnd = [0.0 0.0; 1.0 0.0; 1.0 1.0; 0.0 1.0]
-G = clipped_pebi_2d(p, bnd)
+G = clipped_voronoi_2d(p, bnd)
 ```
 """
-function clipped_pebi_2d(p::Matrix{Float64}, bnd::Matrix{Float64})
+function clipped_voronoi_2d(p::Matrix{Float64}, bnd::Matrix{Float64})
     n_sites = size(p, 1)
 
     # Compute Delaunay triangulation
@@ -109,7 +109,7 @@ function clipped_pebi_2d(p::Matrix{Float64}, bnd::Matrix{Float64})
         cell_vertex_indices[s] = indices
     end
 
-    # Build grid structure
+    # Build mesh structure
     if isempty(all_vertices)
         error("No valid cells generated")
     end
@@ -182,8 +182,8 @@ function clipped_pebi_2d(p::Matrix{Float64}, bnd::Matrix{Float64})
         fn_mat[i, 2] = face_neighbors[i][2]
     end
 
-    G = UnstructuredGrid(V, cell_faces, cell_facePos, face_nodes, face_nodePos,
-        fn_mat; griddim=2)
+    G = UnstructuredMesh(V, cell_faces, cell_facePos, face_nodes, face_nodePos,
+        fn_mat; meshdim=2)
 
     # Sort edges for consistent orientation
     sort_edges!(G)

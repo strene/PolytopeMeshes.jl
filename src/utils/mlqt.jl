@@ -6,7 +6,7 @@ Ported from MRST's mlqt function.
 """
     mlqt(cell_center, bndr, cell_size; level=1, max_level=0, dist_tol=-1.0)
 
-Perform multi-level grid refinement around boundary points.
+Perform multi-level mesh refinement around boundary points.
 
 # Arguments
 - `cell_center`: Center coordinate of cell (1×2 or 1×3)

@@ -1,24 +1,24 @@
 # Face Constraint Conformity
 #
-# This example demonstrates how PEBI grids can conform to face constraints
+# This example demonstrates how Voronoi meshes can conform to face constraints
 # (faults/fractures). It shows both:
 #   1. Manual construction using low-level functions
-#   2. Automatic construction using composite_pebi_grid_2d
+#   2. Automatic construction using composite_voronoi_mesh_2d
 #
 # Based on: MRST book-ii/uprBookSection41.m (Section 4.1)
 
 using PolytopeMeshes
 using LinearAlgebra
 
-## Part 1: Making a constrained grid manually
+## Part 1: Making a constrained mesh manually
 # This demonstrates the basic principle of face-constraint conformity.
 #
 # We place circles at each vertex of the constraint path.
-# The sites for the Voronoi grid are placed at the intersection points
+# The sites for the Voronoi mesh are placed at the intersection points
 # of consecutive circles, on both sides of the constraint. This ensures
-# the resulting PEBI faces align with the constraint path.
+# the resulting Voronoi faces align with the constraint path.
 
-println("=== Part 1: Manual Face Constraint Grid ===")
+println("=== Part 1: Manual Face Constraint Mesh ===")
 
 # Define a piecewise-linear face constraint
 v = Float64[0.0 0.4; 0.2 0.5; 0.4 0.5; 0.6 0.6]
@@ -50,7 +50,7 @@ tip_site = v[end, :] .+ R / sqrt(2)
 # Combine all constraint sites
 fault_sites = vcat(left_sites, right_sites, tip_site')
 
-# Add background sites on a regular grid, removing conflicts
+# Add background sites on a regular mesh, removing conflicts
 bg_sites = reduce(vcat, [[xi yi] for yi in 0.0:0.2:1.0 for xi in 0.0:0.2:1.0])
 
 # Remove background sites that conflict with constraint sites
@@ -61,9 +61,9 @@ bg_sites, _ = remove_conflict_points(bg_sites, ref_pts,
 # Combine all sites
 all_sites = vcat(fault_sites, bg_sites)
 
-# Create clipped PEBI grid
+# Create clipped Voronoi mesh
 bnd = Float64[0.0 0.0; 1.0 0.0; 1.0 1.0; 0.0 1.0]
-G = clipped_pebi_2d(all_sites, bnd)
+G = clipped_voronoi_2d(all_sites, bnd)
 compute_geometry!(G)
 
 println("  Constraint vertices: $(size(v, 1))")
@@ -71,25 +71,25 @@ println("  Circle radius: $(round(R, digits=4))")
 println("  Fault sites: $(size(fault_sites, 1))")
 println("  Background sites: $(size(bg_sites, 1))")
 println("  Total sites: $(size(all_sites, 1))")
-println("  Grid cells: $(G.cells.num)")
-println("  Grid faces: $(G.faces.num)")
+println("  Mesh cells: $(G.cells.num)")
+println("  Mesh faces: $(G.faces.num)")
 println()
 
-## Part 2: Automatic grid using composite_pebi_grid_2d
-# The same kind of grid can be constructed automatically.
-println("=== Part 2: Automatic Face Constraint Grid ===")
+## Part 2: Automatic mesh using composite_voronoi_mesh_2d
+# The same kind of mesh can be constructed automatically.
+println("=== Part 2: Automatic Face Constraint Mesh ===")
 
 lines = [Float64[0.2 0.2; 0.7 0.05],
          Float64[0.2 0.05; 0.7 0.2],
          Float64[0.1 0.4; 0.6 0.6],
          Float64[0.1 0.7; 0.45 0.7; 0.55 0.3]]
 
-G2, pts, F = composite_pebi_grid_2d([0.05, 0.05], [1.0, 1.0];
+G2, pts, F = composite_voronoi_mesh_2d([0.05, 0.05], [1.0, 1.0];
     face_constraints=lines)
 compute_geometry!(G2)
 
 println("  Face constraints: $(length(lines))")
-println("  Grid cells: $(G2.cells.num)")
-println("  Grid faces: $(G2.faces.num)")
+println("  Mesh cells: $(G2.cells.num)")
+println("  Mesh faces: $(G2.faces.num)")
 println("  Tagged faces: $(count(G2.faces.tag))")
 println("  Total volume: $(round(sum(G2.cells.volumes), digits=4))")

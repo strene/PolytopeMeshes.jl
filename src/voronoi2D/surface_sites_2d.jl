@@ -10,7 +10,7 @@ Result struct from `surface_sites_2d`.
 
 # Fields
 - `f_pts`: Face constraint site coordinates
-- `f_Gs`: Grid spacing for each site
+- `f_Gs`: Mesh spacing for each site
 - `f_c`: Map from sites to circles
 - `f_cPos`: Position pointers for site-to-circle map
 - `c_CC`: Circle center coordinates
@@ -38,16 +38,16 @@ mutable struct SurfaceSitesResult
 end
 
 """
-    surface_sites_2d(face_constraints, fc_grid_size; kwargs...)
+    surface_sites_2d(face_constraints, fc_mesh_size; kwargs...)
 
 Place surface sites on both sides of face constraints (faults).
 
 # Arguments
 - `face_constraints`: Vector of n×2 matrices defining fault paths
-- `fc_grid_size`: Desired distance between fault sites
+- `fc_mesh_size`: Desired distance between fault sites
 
 # Keyword Arguments
-- `circle_factor`: Ratio of circle radius to grid size (default: 0.6, valid: (0.5, 1.0))
+- `circle_factor`: Ratio of circle radius to mesh size (default: 0.6, valid: (0.5, 1.0))
 - `f_cut`: L1-L1 intersection cut indicators
 - `fc_cut`: L1-L2 intersection cut indicators
 - `interpolate_fc`: Whether to interpolate constraints
@@ -58,12 +58,12 @@ Place surface sites on both sides of face constraints (faults).
 """
 function surface_sites_2d(
     face_constraints::Vector{Matrix{Float64}},
-    fc_grid_size::Float64;
+    fc_mesh_size::Float64;
     circle_factor::Float64 = 0.6,
     f_cut::Vector{Int} = zeros(Int, length(face_constraints)),
     fc_cut::Vector{Int} = zeros(Int, length(face_constraints)),
     interpolate_fc::Union{Bool,Vector{Bool}} = false,
-    dist_fun::Function = x -> fc_grid_size * ones(size(x, 1))
+    dist_fun::Function = x -> fc_mesh_size * ones(size(x, 1))
 )
     n_faults = length(face_constraints)
 
@@ -94,8 +94,8 @@ function surface_sites_2d(
             0.5 * ((fc_cut[i] == 1 || fc_cut[i] == 3) ? 1.0 : 0.0)
         ]
 
-        pts, grid_spacing, circ_center, circ_radius =
-            _face_constraint_pts(fc, fc_grid_size, circle_factor,
+        pts, mesh_spacing, circ_center, circ_radius =
+            _face_constraint_pts(fc, fc_mesh_size, circle_factor,
                 f_cut[i], se_ptn, dist_fun, interpolate_fc[i])
 
         nl = div(size(pts, 1), 2)
@@ -104,7 +104,7 @@ function surface_sites_2d(
             continue
         end
 
-        append!(F.f_Gs, grid_spacing)
+        append!(F.f_Gs, mesh_spacing)
         push!(F.l_fPos, size(F.f_pts, 1) + 1 + size(pts, 1))
         F.f_pts = vcat(F.f_pts, pts)
         F.c_CC = vcat(F.c_CC, circ_center)
@@ -144,7 +144,7 @@ end
 
 """
 Generate face constraint points for a single fault.
-Returns: pts, grid_spacing, circ_center, circ_radius
+Returns: pts, mesh_spacing, circ_center, circ_radius
 """
 function _face_constraint_pts(
     fc::Matrix{Float64},
@@ -211,9 +211,9 @@ function _face_constraint_pts(
     right = circ_center[1:end-1, :] .+ bisect_pnt .* n1 .- fault_offset .* n2
 
     pts = vcat(right, left)
-    grid_spacing = vcat(2 .* fault_offset, 2 .* fault_offset)
+    mesh_spacing = vcat(2 .* fault_offset, 2 .* fault_offset)
 
-    return pts, grid_spacing, circ_center, circ_radius
+    return pts, mesh_spacing, circ_center, circ_radius
 end
 
 """

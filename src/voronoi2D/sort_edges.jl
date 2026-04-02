@@ -1,16 +1,16 @@
 """
-Sort cell faces counter-clockwise for consistent 2D grid orientation.
+Sort cell faces counter-clockwise for consistent 2D mesh orientation.
 Ported from MRST's sortEdges/sortCellFaces.
 """
 
 """
-    sort_edges!(G::UnstructuredGrid)
+    sort_edges!(G::UnstructuredMesh)
 
-Sort the cell faces of a 2D grid counter-clockwise to ensure positive cell
+Sort the cell faces of a 2D mesh counter-clockwise to ensure positive cell
 volumes and consistent face orientations.
 """
-function sort_edges!(G::UnstructuredGrid)
-    @assert G.griddim == 2
+function sort_edges!(G::UnstructuredMesh)
+    @assert G.meshdim == 2
 
     coords = G.nodes.coords
     face_nodes_arr = G.faces.nodes

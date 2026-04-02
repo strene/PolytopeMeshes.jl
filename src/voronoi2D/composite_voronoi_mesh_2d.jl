@@ -1,23 +1,23 @@
 """
-Construct a 2D composite PEBI grid with cell and face constraints.
+Construct a 2D composite Voronoi mesh with cell and face constraints.
 Ported from MRST's compositePebiGrid2D.
 
 This is the main entry point for creating conforming Voronoi meshes.
 """
 
 """
-    composite_pebi_grid_2d(celldim, pdims; kwargs...)
+    composite_voronoi_mesh_2d(celldim, pdims; kwargs...)
 
-Construct a 2D composite PEBI grid: a Cartesian background grid refined
+Construct a 2D composite Voronoi mesh: a Cartesian background mesh refined
 around face constraints (faults) and cell constraints (wells).
 
 # Arguments
-- `celldim`: [dx, dy] size of reservoir grid cells
+- `celldim`: [dx, dy] size of reservoir mesh cells
 - `pdims`: [xmax, ymax] physical dimensions of the domain
 
 # Keyword Arguments
 - `cell_constraints`: Vector of n×2 matrices defining well/cell constraint paths
-- `cc_factor`: Relative grid size for cell constraints (default: 1.0)
+- `cc_factor`: Relative mesh size for cell constraints (default: 1.0)
 - `interpolate_cc`: Whether to interpolate cell constraints (default: false)
 - `mlqt_max_level`: Number of MLQT refinement levels (default: 0)
 - `mlqt_level_steps`: Distance tolerance per level (default: -1)
@@ -25,13 +25,13 @@ around face constraints (faults) and cell constraints (wells).
 - `prot_layer`: Whether to add protection layers (default: false)
 - `prot_d`: Protection layer distance functions
 - `face_constraints`: Vector of n×2 matrices defining fault/face constraint paths
-- `fc_factor`: Relative grid size for face constraints (default: 1.0)
+- `fc_factor`: Relative mesh size for face constraints (default: 1.0)
 - `interpolate_fc`: Whether to interpolate face constraints (default: false)
 - `circle_factor`: Circle size ratio for fault sites (default: 0.6, valid: (0.5, 1.0))
 - `poly_bdr`: k×2 polygon boundary vertices (default: rectangular from pdims)
 
 # Returns
-- `G::UnstructuredGrid`: Valid grid with tagged cells and faces
+- `G::UnstructuredMesh`: Valid mesh with tagged cells and faces
 - `pts`: All Voronoi sites used
 - `F`: SurfaceSitesResult from face constraint processing
 
@@ -39,11 +39,11 @@ around face constraints (faults) and cell constraints (wells).
 ```julia
 fl = [Float64[0.2 0.2; 0.8 0.8]]
 wl = [Float64[0.2 0.8; 0.8 0.2]]
-G, pts, F = composite_pebi_grid_2d([0.1, 0.1], [1.0, 1.0];
+G, pts, F = composite_voronoi_mesh_2d([0.1, 0.1], [1.0, 1.0];
     cell_constraints=wl, face_constraints=fl)
 ```
 """
-function composite_pebi_grid_2d(
+function composite_voronoi_mesh_2d(
     celldim::Vector{Float64},
     pdims::Vector{Float64};
     cell_constraints::Vector{Matrix{Float64}} = Matrix{Float64}[],
@@ -67,9 +67,9 @@ function composite_pebi_grid_2d(
     @assert length(celldim) == 2
     @assert 0.5 < circle_factor < 1.0
 
-    # Set grid sizes
-    cc_grid_size = minimum(celldim) * cc_factor
-    fc_grid_size = minimum(celldim) * fc_factor
+    # Set mesh sizes
+    cc_mesh_size = minimum(celldim) * cc_factor
+    fc_mesh_size = minimum(celldim) * fc_factor
 
     # Handle scalar interpolate flags
     if isa(interpolate_cc, Bool)
@@ -134,10 +134,10 @@ function composite_pebi_grid_2d(
     end
 
     # Calculate fault offset for se_ptn
-    # bisect_pnt = (d² - R2² + R1²) / (2d) where d = R1 = R2 = fc_grid_size terms
-    # simplifies to fc_grid_size / 2
-    bisect_pnt = fc_grid_size / 2
-    fault_offset = sqrt(max(0, (circle_factor * fc_grid_size)^2 - bisect_pnt^2))
+    # bisect_pnt = (d² - R2² + R1²) / (2d) where d = R1 = R2 = fc_mesh_size terms
+    # simplifies to fc_mesh_size / 2
+    bisect_pnt = fc_mesh_size / 2
+    fault_offset = sqrt(max(0, (circle_factor * fc_mesh_size)^2 - bisect_pnt^2))
 
     # Create cell constraint sites
     cc_pts = zeros(0, 2)
@@ -150,16 +150,16 @@ function composite_pebi_grid_2d(
         for i in 1:length(cc_split)
             se_ptn[i, 1] = ((cf_cut[min(i, length(cf_cut))] == 2 ||
                              cf_cut[min(i, length(cf_cut))] == 3) ? 1.0 : 0.0) *
-                           (1.0 + fault_offset / cc_grid_size)
+                           (1.0 + fault_offset / cc_mesh_size)
             se_ptn[i, 2] = ((cf_cut[min(i, length(cf_cut))] == 1 ||
                              cf_cut[min(i, length(cf_cut))] == 3) ? 1.0 : 0.0) *
-                           (1.0 + fault_offset / cc_grid_size)
+                           (1.0 + fault_offset / cc_mesh_size)
         end
 
-        cc_rho_scaled = x -> cc_grid_size * cc_rho(x)
+        cc_rho_scaled = x -> cc_mesh_size * cc_rho(x)
 
         cc_pts, c_gs, prot_pts, p_gs = line_sites_2d(
-            cc_split, cc_grid_size;
+            cc_split, cc_mesh_size;
             se_ptn=se_ptn,
             cf_cut=cf_cut[1:min(length(cf_cut), length(cc_split))],
             c_cut=c_cut[1:min(length(c_cut), length(cc_split))],
@@ -173,12 +173,12 @@ function composite_pebi_grid_2d(
     # Create fault sites
     F = if !isempty(fc_split)
         surface_sites_2d(
-            fc_split, fc_grid_size;
+            fc_split, fc_mesh_size;
             circle_factor=circle_factor,
             f_cut=f_cut[1:min(length(f_cut), length(fc_split))],
             fc_cut=fc_cut[1:min(length(fc_cut), length(fc_split))],
             interpolate_fc=interp_fl[1:min(length(interp_fl), length(fc_split))],
-            dist_fun=x -> fc_grid_size * ones(size(x, 1))
+            dist_fun=x -> fc_mesh_size * ones(size(x, 1))
         )
     else
         SurfaceSitesResult(
@@ -188,7 +188,7 @@ function composite_pebi_grid_2d(
         )
     end
 
-    # Create reservoir background grid
+    # Create reservoir background mesh
     if size(poly_bdr, 1) == 0
         dx = pdims[1] / ceil(pdims[1] / celldim[1])
         dy = pdims[2] / ceil(pdims[2] / celldim[2])
@@ -261,8 +261,8 @@ function composite_pebi_grid_2d(
     # Combine all points
     pts = vcat(F.f_pts, cc_pts, prot_pts, F.t_pts, res_pts)
 
-    # Create grid
-    G = clipped_pebi_2d(pts, poly_bdr)
+    # Create mesh
+    G = clipped_voronoi_2d(pts, poly_bdr)
 
     # Tag fault faces
     G.faces.tag = fill(false, G.faces.num)
