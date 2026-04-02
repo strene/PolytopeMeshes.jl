@@ -44,5 +44,30 @@ export surface_sites_2d
 export surface_suf_cond_2d
 export remove_conflict_points
 export compute_geometry!
+export plot_mesh
+
+"""
+    plot_mesh(G::UnstructuredMesh; kwargs...)
+
+Plot an `UnstructuredMesh`. Requires GLMakie to be loaded.
+
+# Keyword Arguments
+- `color_cells=true`: Color cells by index when `true`
+- `colormap=:viridis`: Colormap for cell coloring
+- `strokecolor=:black`: Color of cell edges
+- `strokewidth=1.0`: Width of cell edges
+- `show_nodes=false`: Show mesh nodes as scatter points
+- `node_color=:red`: Color of node markers
+- `node_size=4`: Size of node markers
+- `figure_size=(800, 600)`: Size of the figure
+- `title=""`: Title for the plot
+
+Returns a `(fig, ax)` tuple.
+
+!!! note
+    This function requires the GLMakie package. Load it with `using GLMakie`
+    before calling `plot_mesh`.
+"""
+function plot_mesh end
 
 end # module PolytopeMeshes

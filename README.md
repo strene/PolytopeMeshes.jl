@@ -85,6 +85,29 @@ The mesh follows the MRST unstructured mesh format:
 - **`surface_suf_cond_2d(pts, F)`** — Enforces the sufficient surface condition
   by removing reservoir sites that lie inside fault circles.
 
+### Plotting
+
+Plotting is available as an extension via [GLMakie](https://github.com/MakieOrg/Makie.jl).
+Load GLMakie to enable the `plot_mesh` function:
+
+```julia
+using PolytopeMeshes
+using GLMakie
+
+G, pts, F = composite_voronoi_mesh_2d([0.1, 0.1], [1.0, 1.0])
+fig, ax = plot_mesh(G; title="Voronoi mesh")
+
+# Customize the appearance
+fig, ax = plot_mesh(G;
+    color_cells=true,
+    colormap=:plasma,
+    strokewidth=1.5,
+    show_nodes=true,
+    node_color=:red,
+    node_size=4,
+)
+```
+
 ### Utilities
 
 - **`remove_conflict_points(P1, P2, dist)`** — Removes sites from P1 too close to P2.
