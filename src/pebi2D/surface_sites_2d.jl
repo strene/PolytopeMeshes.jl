@@ -124,7 +124,6 @@ function surface_sites_2d(
 
         # Site to circle mapping
         for j in 1:(2 * nl)
-            circ_idx = min(div(j - 1, 1) + 1, nc)
             if j <= nl
                 circ_idx = j
             else

@@ -134,8 +134,9 @@ function composite_pebi_grid_2d(
     end
 
     # Calculate fault offset for se_ptn
-    bisect_pnt = (fc_grid_size^2 - (circle_factor * fc_grid_size)^2 +
-                  (circle_factor * fc_grid_size)^2) / (2 * fc_grid_size)
+    # bisect_pnt = (d² - R2² + R1²) / (2d) where d = R1 = R2 = fc_grid_size terms
+    # simplifies to fc_grid_size / 2
+    bisect_pnt = fc_grid_size / 2
     fault_offset = sqrt(max(0, (circle_factor * fc_grid_size)^2 - bisect_pnt^2))
 
     # Create cell constraint sites
