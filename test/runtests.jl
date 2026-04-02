@@ -3,8 +3,8 @@ using PolytopeMeshes
 
 @testset "PolytopeMeshes.jl" begin
 
-    @testset "Grid data structure" begin
-        # Create a simple 2-cell grid (two triangles)
+    @testset "Mesh data structure" begin
+        # Create a simple 2-cell mesh (two triangles)
         coords = [0.0 0.0; 1.0 0.0; 1.0 1.0; 0.0 1.0; 0.5 0.5]
         cell_faces = [1, 2, 3, 4, 5, 3]
         cell_facePos = [1, 4, 7]
@@ -12,13 +12,13 @@ using PolytopeMeshes
         face_nodePos = [1, 3, 5, 7, 9, 11]
         face_neighbors = [1 0; 1 2; 1 0; 2 0; 2 0]
 
-        G = UnstructuredGrid(coords, cell_faces, cell_facePos, face_nodes,
-            face_nodePos, face_neighbors; griddim=2)
+        G = UnstructuredMesh(coords, cell_faces, cell_facePos, face_nodes,
+            face_nodePos, face_neighbors; meshdim=2)
 
         @test G.cells.num == 2
         @test G.faces.num == 5
         @test G.nodes.num == 5
-        @test G.griddim == 2
+        @test G.meshdim == 2
     end
 
     @testset "Point in polygon" begin
@@ -98,8 +98,8 @@ using PolytopeMeshes
         @test size(tri, 2) == 3
     end
 
-    @testset "Clipped PEBI 2D - simple" begin
-        # Regular grid of points
+    @testset "Clipped Voronoi 2D - simple" begin
+        # Regular mesh of points
         pts = zeros(9, 2)
         idx = 1
         for y in [0.25, 0.5, 0.75]
@@ -110,12 +110,12 @@ using PolytopeMeshes
         end
         bnd = [0.0 0.0; 1.0 0.0; 1.0 1.0; 0.0 1.0]
 
-        G = clipped_pebi_2d(pts, bnd)
+        G = clipped_voronoi_2d(pts, bnd)
 
         @test G.cells.num == 9
         @test G.faces.num > 0
         @test G.nodes.num > 0
-        @test G.griddim == 2
+        @test G.meshdim == 2
 
         # Compute geometry
         compute_geometry!(G)
@@ -153,8 +153,8 @@ using PolytopeMeshes
         @test size(filtered, 1) + count(removed) == 200
     end
 
-    @testset "Composite PEBI grid 2D - basic" begin
-        G, pts, F = composite_pebi_grid_2d([0.1, 0.1], [1.0, 1.0])
+    @testset "Composite Voronoi mesh 2D - basic" begin
+        G, pts, F = composite_voronoi_mesh_2d([0.1, 0.1], [1.0, 1.0])
 
         @test G.cells.num > 0
         @test G.faces.num > 0
@@ -164,28 +164,28 @@ using PolytopeMeshes
         @test isapprox(sum(G.cells.volumes), 1.0; atol=0.1)
     end
 
-    @testset "Composite PEBI grid 2D - with cell constraints" begin
+    @testset "Composite Voronoi mesh 2D - with cell constraints" begin
         wl = [Float64[0.2 0.8; 0.8 0.2]]
-        G, pts, F = composite_pebi_grid_2d([0.1, 0.1], [1.0, 1.0];
+        G, pts, F = composite_voronoi_mesh_2d([0.1, 0.1], [1.0, 1.0];
             cell_constraints=wl)
 
         @test G.cells.num > 0
         @test any(G.cells.tag)  # Some cells should be tagged as wells
     end
 
-    @testset "Composite PEBI grid 2D - with face constraints" begin
+    @testset "Composite Voronoi mesh 2D - with face constraints" begin
         fl = [Float64[0.2 0.2; 0.8 0.8]]
-        G, pts, F = composite_pebi_grid_2d([0.1, 0.1], [1.0, 1.0];
+        G, pts, F = composite_voronoi_mesh_2d([0.1, 0.1], [1.0, 1.0];
             face_constraints=fl)
 
         @test G.cells.num > 0
         @test size(F.f_pts, 1) > 0
     end
 
-    @testset "Composite PEBI grid 2D - with both constraints" begin
+    @testset "Composite Voronoi mesh 2D - with both constraints" begin
         fl = [Float64[0.2 0.2; 0.8 0.8]]
         wl = [Float64[0.2 0.8; 0.8 0.2]]
-        G, pts, F = composite_pebi_grid_2d([0.1, 0.1], [1.0, 1.0];
+        G, pts, F = composite_voronoi_mesh_2d([0.1, 0.1], [1.0, 1.0];
             cell_constraints=wl,
             face_constraints=fl)
 

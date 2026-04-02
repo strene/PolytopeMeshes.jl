@@ -25,17 +25,17 @@ for (i, f) in enumerate(faults)
 end
 println()
 
-## Create grid
-# Note: Use a moderate grid size for reasonable computation time.
+## Create mesh
+# Note: Use a moderate mesh size for reasonable computation time.
 # For finer grids, consider using an external Delaunay package.
-gS = 0.1  # Grid size
+gS = 0.1  # Mesh size
 
-G, pts, F = composite_pebi_grid_2d([gS, gS], [1.0, 1.15];
+G, pts, F = composite_voronoi_mesh_2d([gS, gS], [1.0, 1.15];
     face_constraints=faults)
 
 compute_geometry!(G)
 
-println("=== Grid Statistics ===")
+println("=== Mesh Statistics ===")
 println("  Cells: $(G.cells.num)")
 println("  Faces: $(G.faces.num)")
 println("  Nodes: $(G.nodes.num)")
@@ -44,7 +44,7 @@ println("  Total volume: $(round(sum(G.cells.volumes), digits=4))")
 println("  Domain: [0, 1] × [0, 1.15]")
 println()
 
-# Verify the grid tiles the domain correctly
+# Verify the mesh tiles the domain correctly
 expected_area = 1.0 * 1.15
 actual_area = sum(G.cells.volumes)
 println("  Expected area: $expected_area")

@@ -1,8 +1,8 @@
 # Intersecting Well and Faults
 #
 # This example demonstrates a single curved well path intersected by
-# several straight faults. We use composite_pebi_grid_2d to create a PEBI
-# grid conforming to both the well (cell constraint) and faults (face
+# several straight faults. We use composite_voronoi_mesh_2d to create a Voronoi
+# mesh conforming to both the well (cell constraint) and faults (face
 # constraints).
 #
 # Based on: MRST 2d/intersectingWellAndFaults.m
@@ -30,13 +30,13 @@ println("  Well path: $(size(well[1], 1)) vertices")
 println("  Number of faults: $(length(faults))")
 println()
 
-## Construct the grid
-gS  = 1.0 / 24   # Grid size
+## Construct the mesh
+gS  = 1.0 / 24   # Mesh size
 wGf = 0.5         # Relative size of well cells compared to gS
 fGf = 0.5         # Relative size of fault cells compared to gS
 nRs = 1           # Number of MLQT refinement steps towards the well
 
-G, pts, F = composite_pebi_grid_2d([gS, gS], [1.0, 1.0];
+G, pts, F = composite_voronoi_mesh_2d([gS, gS], [1.0, 1.0];
     cell_constraints=well,
     cc_factor=wGf,
     face_constraints=faults,
@@ -45,7 +45,7 @@ G, pts, F = composite_pebi_grid_2d([gS, gS], [1.0, 1.0];
 
 compute_geometry!(G)
 
-println("=== Grid Statistics ===")
+println("=== Mesh Statistics ===")
 println("  Cells: $(G.cells.num)")
 println("  Faces: $(G.faces.num)")
 println("  Nodes: $(G.nodes.num)")

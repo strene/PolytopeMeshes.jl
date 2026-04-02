@@ -1,23 +1,23 @@
-# Clipped PEBI Grid from Arbitrary Sites
+# Clipped Voronoi Mesh from Arbitrary Sites
 #
-# This example demonstrates how to create a PEBI (Voronoi) grid directly
+# This example demonstrates how to create a Voronoi mesh directly
 # from a set of generating sites, clipped to a polygonal boundary.
-# This is the low-level interface; for most uses, composite_pebi_grid_2d
+# This is the low-level interface; for most uses, composite_voronoi_mesh_2d
 # is more convenient.
 #
 # Based on: MRST book-ii/uprBookSection2.m (Section 2.2, 2.3)
 
 using PolytopeMeshes
 
-## 1. Simple PEBI grid from a few sites
+## 1. Simple Voronoi mesh from a few sites
 # Create a Voronoi tessellation from a small set of sites inside the
 # unit square.
-println("=== 1. Simple PEBI Grid ===")
+println("=== 1. Simple Voronoi Mesh ===")
 
 sites = Float64[0.0 0.0; 1.0 0.0; 1.0 1.0; 0.0 1.0; 1/3 1/3]
 bnd = Float64[0.0 0.0; 1.0 0.0; 1.0 1.0; 0.0 1.0]
 
-G = clipped_pebi_2d(sites, bnd)
+G = clipped_voronoi_2d(sites, bnd)
 compute_geometry!(G)
 
 println("  Sites: $(size(sites, 1))")
@@ -27,9 +27,9 @@ println("  Nodes: $(G.nodes.num)")
 println("  Total volume: $(round(sum(G.cells.volumes), digits=4))")
 println()
 
-## 2. PEBI grid from regular + perturbed sites
+## 2. Voronoi mesh from regular + perturbed sites
 # Demonstrates the dual relationship between Delaunay triangulation
-# and PEBI (Voronoi) grid.
+# and Voronoi mesh.
 println("=== 2. Regular + Perturbed Sites ===")
 
 n = 5
@@ -50,7 +50,7 @@ for i in 1:size(sites, 1)
     end
 end
 
-G = clipped_pebi_2d(sites, bnd)
+G = clipped_voronoi_2d(sites, bnd)
 compute_geometry!(G)
 
 println("  Sites: $(size(sites, 1))")
@@ -60,7 +60,7 @@ println("  Total volume: $(round(sum(G.cells.volumes), digits=4))")
 println()
 
 ## 3. Random sites
-# Create a PEBI grid from random points.
+# Create a Voronoi mesh from random points.
 println("=== 3. Random Sites ===")
 
 using Random
@@ -69,7 +69,7 @@ n_random = 50
 random_sites = rand(n_random, 2)
 bnd_large = Float64[-0.1 -0.1; 1.1 -0.1; 1.1 1.1; -0.1 1.1]
 
-G = clipped_pebi_2d(random_sites, bnd_large)
+G = clipped_voronoi_2d(random_sites, bnd_large)
 compute_geometry!(G)
 
 println("  Random sites: $n_random")

@@ -1,7 +1,7 @@
 # Polygonal Boundary
 #
-# This example demonstrates creating PEBI grids on non-rectangular domains
-# using the poly_bdr option of composite_pebi_grid_2d.
+# This example demonstrates creating Voronoi meshes on non-rectangular domains
+# using the poly_bdr option of composite_voronoi_mesh_2d.
 #
 # Based on: Parts of MRST 2d/showOptionValuesCompositePebiGrid.m and
 #           MRST book-ii/uprBookSection3.m
@@ -14,7 +14,7 @@ println("=== 1. Quadrilateral Domain ===")
 
 bdr = Float64[0.0 0.0; -0.5 1.0; 0.5 1.5; 1.0 1.0]
 
-G, _, _ = composite_pebi_grid_2d([0.1, 0.1], [1.0, 1.0];
+G, _, _ = composite_voronoi_mesh_2d([0.1, 0.1], [1.0, 1.0];
     poly_bdr=bdr)
 compute_geometry!(G)
 
@@ -39,7 +39,7 @@ bdr_star = Float64[
     0.2 0.5
 ]
 
-G_star, _, _ = composite_pebi_grid_2d([0.1, 0.1], [1.0, 1.0];
+G_star, _, _ = composite_voronoi_mesh_2d([0.1, 0.1], [1.0, 1.0];
     poly_bdr=bdr_star)
 compute_geometry!(G_star)
 
@@ -57,7 +57,7 @@ bdr_poly = Float64[0.0 0.0; 1.0 0.0; 1.2 0.8; 0.8 1.2; -0.2 1.0]
 faults = [Float64[0.2 0.3; 0.7 0.6],
           Float64[0.5 0.2; 0.3 0.8]]
 
-G_poly, _, F = composite_pebi_grid_2d([0.08, 0.08], [1.0, 1.0];
+G_poly, _, F = composite_voronoi_mesh_2d([0.08, 0.08], [1.0, 1.0];
     poly_bdr=bdr_poly,
     face_constraints=faults)
 compute_geometry!(G_poly)
@@ -76,7 +76,7 @@ println("=== 4. Polygonal Domain with Wells ===")
 
 wells = [Float64[0.2 0.3; 0.5 0.5; 0.8 0.7]]
 
-G_well, _, _ = composite_pebi_grid_2d([0.08, 0.08], [1.0, 1.0];
+G_well, _, _ = composite_voronoi_mesh_2d([0.08, 0.08], [1.0, 1.0];
     poly_bdr=bdr_poly,
     cell_constraints=wells,
     cc_factor=0.5)
