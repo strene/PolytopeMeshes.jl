@@ -9,7 +9,8 @@ import Jutul
 Convert a PolytopeMeshes `UnstructuredMesh` to a Jutul `UnstructuredMesh`.
 
 Only 3D meshes are supported by Jutul. If a 2D mesh is provided, it is
-automatically extruded to 3D with a single layer of length 1 in the z-direction.
+automatically extruded to 3D with a single layer of length 1 in the
+z-direction (equivalent to `extrude(G, 1.0, 1)`).
 """
 function PolytopeMeshes.jutul_mesh(G::UnstructuredMesh)
     if G.meshdim == 2

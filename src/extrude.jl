@@ -53,19 +53,19 @@ function extrude(G::UnstructuredMesh, lengths::Vector{<:Real}, layers::Vector{<:
     @assert all(l -> l >= 1, layers) "All layer counts must be at least 1"
     @assert dim in (:x, :y, :z) "dim must be :x, :y, or :z"
 
-    # Compute z-coordinates for all levels
-    z = Float64[0.0]
-    prev_z = 0.0
+    # Compute coordinates along the extrusion direction
+    layer_coords = Float64[0.0]
+    prev = 0.0
     for i in eachindex(lengths)
         target = Float64(lengths[i])
         n = layers[i]
         for j in 1:n
-            push!(z, prev_z + (target - prev_z) * j / n)
+            push!(layer_coords, prev + (target - prev) * j / n)
         end
-        prev_z = target
+        prev = target
     end
 
-    nlevels = length(z)     # number of z-levels
+    nlevels = length(layer_coords)     # number of z-levels
     nlayers = nlevels - 1   # number of layers
 
     nn2d = G.nodes.num
@@ -80,7 +80,7 @@ function extrude(G::UnstructuredMesh, lengths::Vector{<:Real}, layers::Vector{<:
             idx = (k - 1) * nn2d + i
             coords3d[idx, 1] = G.nodes.coords[i, 1]
             coords3d[idx, 2] = G.nodes.coords[i, 2]
-            coords3d[idx, 3] = z[k]
+            coords3d[idx, 3] = layer_coords[k]
         end
     end
 
