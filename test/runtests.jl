@@ -98,6 +98,41 @@ using PolytopeMeshes
         @test size(tri, 2) == 3
     end
 
+    @testset "Triangulation backend" begin
+        # Default backend should be BowyerWatson
+        @test default_triangulation_backend() isa BowyerWatson
+
+        # triangulate_2d with BowyerWatson matches _delaunay_2d
+        pts = [0.0 0.0; 1.0 0.0; 1.0 1.0; 0.0 1.0]
+        tri_direct = PolytopeMeshes._delaunay_2d(pts)
+        tri_backend = triangulate_2d(BowyerWatson(), pts)
+        @test tri_direct == tri_backend
+
+        # Edge case: fewer than 3 points
+        @test size(triangulate_2d(BowyerWatson(), zeros(2, 2)), 1) == 0
+
+        # set/get default backend round-trips
+        original = default_triangulation_backend()
+        new_bw = BowyerWatson()
+        set_default_triangulation_backend!(new_bw)
+        @test default_triangulation_backend() === new_bw
+        set_default_triangulation_backend!(original)
+
+        # clipped_voronoi_2d accepts triangulation kwarg
+        sites = zeros(9, 2)
+        idx = 1
+        for y in [0.25, 0.5, 0.75]
+            for x in [0.25, 0.5, 0.75]
+                sites[idx, :] = [x, y]
+                idx += 1
+            end
+        end
+        bnd = [0.0 0.0; 1.0 0.0; 1.0 1.0; 0.0 1.0]
+        G = clipped_voronoi_2d(sites, bnd; triangulation=BowyerWatson())
+        @test G.cells.num == 9
+        @test G.meshdim == 2
+    end
+
     @testset "Clipped Voronoi 2D - simple" begin
         # Regular mesh of points
         pts = zeros(9, 2)

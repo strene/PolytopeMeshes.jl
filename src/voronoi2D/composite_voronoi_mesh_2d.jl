@@ -29,6 +29,8 @@ around face constraints (faults) and cell constraints (wells).
 - `interpolate_fc`: Whether to interpolate face constraints (default: false)
 - `circle_factor`: Circle size ratio for fault sites (default: 0.6, valid: (0.5, 1.0))
 - `poly_bdr`: k×2 polygon boundary vertices (default: rectangular from pdims)
+- `triangulation`: A [`TriangulationBackend`](@ref) instance for Delaunay triangulation
+  (default: [`default_triangulation_backend()`](@ref))
 
 # Returns
 - `G::UnstructuredMesh`: Valid mesh with tagged cells and faces
@@ -58,7 +60,8 @@ function composite_voronoi_mesh_2d(
     fc_factor::Float64 = 1.0,
     interpolate_fc::Union{Bool,Vector{Bool}} = false,
     circle_factor::Float64 = 0.6,
-    poly_bdr::Matrix{Float64} = zeros(0, 2)
+    poly_bdr::Matrix{Float64} = zeros(0, 2),
+    triangulation::TriangulationBackend = default_triangulation_backend()
 )
     # Validate input
     @assert length(pdims) == 2
@@ -262,7 +265,7 @@ function composite_voronoi_mesh_2d(
     pts = vcat(F.f_pts, cc_pts, prot_pts, F.t_pts, res_pts)
 
     # Create mesh
-    G = clipped_voronoi_2d(pts, poly_bdr)
+    G = clipped_voronoi_2d(pts, poly_bdr; triangulation=triangulation)
 
     # Tag fault faces
     G.faces.tag = fill(false, G.faces.num)

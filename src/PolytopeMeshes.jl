@@ -19,6 +19,9 @@ using SparseArrays
 # Mesh data structure
 include("mesh.jl")
 
+# Triangulation backend abstraction (before voronoi2D which uses it)
+include("triangulation.jl")
+
 # Utility functions
 include("utils/geometry.jl")
 include("utils/interpolation.jl")
@@ -45,6 +48,13 @@ export surface_suf_cond_2d
 export remove_conflict_points
 export compute_geometry!
 export plot_mesh
+
+# Triangulation backend exports
+export TriangulationBackend
+export BowyerWatson
+export triangulate_2d
+export default_triangulation_backend
+export set_default_triangulation_backend!
 
 """
     plot_mesh(G::UnstructuredMesh; kwargs...)

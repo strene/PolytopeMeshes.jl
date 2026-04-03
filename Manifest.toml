@@ -2,7 +2,7 @@
 
 julia_version = "1.12.5"
 manifest_format = "2.0"
-project_hash = "499af3b67fc50212effaf2600201bcaae8d29ed2"
+project_hash = "610dc5777899542adcb9ee7c732a7e9cf063317c"
 
 [[deps.Artifacts]]
 uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
@@ -32,6 +32,14 @@ deps = ["LinearAlgebra", "SparseArrays"]
 path = "."
 uuid = "a084ef37-6317-401f-8925-353d213336fa"
 version = "0.1.0"
+
+    [deps.PolytopeMeshes.extensions]
+    PolytopeMeshesGLMakieExt = "GLMakie"
+    PolytopeMeshesGmshExt = "Gmsh"
+
+    [deps.PolytopeMeshes.weakdeps]
+    GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
+    Gmsh = "705231aa-382f-11e9-3f0c-b7cb4346fdeb"
 
 [[deps.Random]]
 deps = ["SHA"]
