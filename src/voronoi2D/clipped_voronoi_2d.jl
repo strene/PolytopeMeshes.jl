@@ -300,6 +300,8 @@ function _delaunay_2d(points::Matrix{Float64})
     return reduce(vcat, [r' for r in result])
 end
 
+# BowyerWatson backend method — defined here (not in triangulation.jl) because
+# it depends on _delaunay_2d which is defined above in this file.
 function triangulate_2d(::BowyerWatson, points::Matrix{Float64})
     return _delaunay_2d(points)
 end
