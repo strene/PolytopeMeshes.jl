@@ -136,8 +136,10 @@ Currently supports 2D meshes.
 function compute_geometry!(G::UnstructuredMesh)
     if G.meshdim == 2
         _compute_geometry_2d!(G)
+    elseif G.meshdim == 3
+        _compute_geometry_3d!(G)
     else
-        error("3D geometry computation not yet implemented")
+        error("Geometry computation not implemented for dimension $(G.meshdim)")
     end
     return G
 end
@@ -213,6 +215,132 @@ function _compute_geometry_2d!(G::UnstructuredMesh)
         else
             # Degenerate cell - use centroid of nodes
             cell_centroids[i, :] = mean(coords[node_ids, :], dims=1)
+        end
+    end
+
+    G.cells.volumes = cell_volumes
+    G.cells.centroids = cell_centroids
+
+    return G
+end
+
+function _compute_geometry_3d!(G::UnstructuredMesh)
+    coords = G.nodes.coords
+    nf = G.faces.num
+    nc = G.cells.num
+
+    # --- Face geometry ---
+    face_centroids = zeros(nf, 3)
+    face_normals = zeros(nf, 3)
+    face_areas = zeros(nf)
+
+    for i in 1:nf
+        np_start = G.faces.nodePos[i]
+        np_end = G.faces.nodePos[i + 1] - 1
+        n_nodes = np_end - np_start + 1
+        node_ids = G.faces.nodes[np_start:np_end]
+
+        # Face centroid: area-weighted centroid of triangle fan
+        # Face normal: sum of triangle cross products
+        p1 = coords[node_ids[1], :]
+        nx, ny, nz = 0.0, 0.0, 0.0
+        cx, cy, cz = 0.0, 0.0, 0.0
+        total_area = 0.0
+
+        for j in 2:(n_nodes - 1)
+            p2 = coords[node_ids[j], :]
+            p3 = coords[node_ids[j + 1], :]
+            # Cross product of triangle edges
+            e1 = p2 - p1
+            e2 = p3 - p1
+            cross_x = e1[2] * e2[3] - e1[3] * e2[2]
+            cross_y = e1[3] * e2[1] - e1[1] * e2[3]
+            cross_z = e1[1] * e2[2] - e1[2] * e2[1]
+            tri_area = 0.5 * sqrt(cross_x^2 + cross_y^2 + cross_z^2)
+            # Triangle centroid
+            tcx = (p1[1] + p2[1] + p3[1]) / 3.0
+            tcy = (p1[2] + p2[2] + p3[2]) / 3.0
+            tcz = (p1[3] + p2[3] + p3[3]) / 3.0
+            cx += tri_area * tcx
+            cy += tri_area * tcy
+            cz += tri_area * tcz
+            nx += cross_x
+            ny += cross_y
+            nz += cross_z
+            total_area += tri_area
+        end
+
+        face_areas[i] = total_area
+        if total_area > eps()
+            face_centroids[i, :] = [cx, cy, cz] / total_area
+        else
+            # Degenerate face: use average of nodes
+            face_centroids[i, :] = vec(mean(coords[node_ids, :], dims=1))
+        end
+        face_normals[i, :] = [nx, ny, nz] * 0.5
+    end
+
+    G.faces.areas = face_areas
+    G.faces.normals = face_normals
+    G.faces.centroids = face_centroids
+
+    # --- Cell geometry ---
+    # Use divergence theorem: V = (1/3) * sum_f sign_f * dot(normal_f, centroid_f)
+    # Cell centroid via tetrahedral decomposition
+    cell_volumes = zeros(nc)
+    cell_centroids = zeros(nc, 3)
+
+    for i in 1:nc
+        fi = G.cells.facePos[i]
+        li = G.cells.facePos[i + 1] - 1
+        cell_face_ids = G.cells.faces[fi:li]
+
+        # Reference point: average of face centroids
+        p0 = zeros(3)
+        for fid in cell_face_ids
+            p0 .+= face_centroids[fid, :]
+        end
+        p0 ./= length(cell_face_ids)
+
+        vol = 0.0
+        cx, cy, cz = 0.0, 0.0, 0.0
+
+        for fid in cell_face_ids
+            # Determine sign: +1 if cell i is neighbor 1 (normal outward), -1 otherwise
+            sign_f = G.faces.neighbors[fid, 1] == i ? 1.0 : -1.0
+
+            np_start = G.faces.nodePos[fid]
+            np_end = G.faces.nodePos[fid + 1] - 1
+            node_ids = G.faces.nodes[np_start:np_end]
+            n_nodes = length(node_ids)
+
+            # Decompose face into triangles, form tetrahedra with p0
+            v1 = coords[node_ids[1], :]
+            for j in 2:(n_nodes - 1)
+                v2 = coords[node_ids[j], :]
+                v3 = coords[node_ids[j + 1], :]
+
+                # Tetrahedron (p0, v1, v2, v3) - signed volume
+                d1 = v1 - p0
+                d2 = v2 - p0
+                d3 = v3 - p0
+                tet_vol = sign_f * (d1[1] * (d2[2] * d3[3] - d2[3] * d3[2]) -
+                                    d1[2] * (d2[1] * d3[3] - d2[3] * d3[1]) +
+                                    d1[3] * (d2[1] * d3[2] - d2[2] * d3[1])) / 6.0
+
+                tet_c = (p0 + v1 + v2 + v3) / 4.0
+                vol += tet_vol
+                cx += tet_vol * tet_c[1]
+                cy += tet_vol * tet_c[2]
+                cz += tet_vol * tet_c[3]
+            end
+        end
+
+        cell_volumes[i] = abs(vol)
+        if abs(vol) > eps()
+            cell_centroids[i, :] = [cx, cy, cz] / vol
+        else
+            cell_centroids[i, :] = p0
         end
     end
 
