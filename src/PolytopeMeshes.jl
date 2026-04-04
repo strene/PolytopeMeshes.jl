@@ -38,6 +38,9 @@ include("voronoi2D/clipped_voronoi_2d.jl")
 include("voronoi2D/sort_edges.jl")
 include("voronoi2D/composite_voronoi_mesh_2d.jl")
 
+# 3D mesh generation
+include("extrude.jl")
+
 # Exports
 export UnstructuredMesh
 export composite_voronoi_mesh_2d
@@ -47,6 +50,8 @@ export surface_sites_2d
 export surface_suf_cond_2d
 export remove_conflict_points
 export compute_geometry!
+export extrude
+export jutul_mesh
 export plot_mesh
 
 # Triangulation backend exports
@@ -79,5 +84,23 @@ Returns a `(fig, ax)` tuple.
     before calling `plot_mesh`.
 """
 function plot_mesh end
+
+"""
+    jutul_mesh(G::UnstructuredMesh)
+
+Convert an `UnstructuredMesh` to a Jutul `UnstructuredMesh`. Requires the
+[Jutul](https://github.com/sintefmath/Jutul.jl) package to be loaded.
+
+Only 3D meshes are supported by Jutul. If a 2D mesh is provided, it is
+automatically extruded to 3D with a single layer of length 1 in the z-direction.
+
+# Returns
+A `Jutul.UnstructuredMesh`.
+
+!!! note
+    This function requires the Jutul package. Load it with `using Jutul`
+    before calling `jutul_mesh`.
+"""
+function jutul_mesh end
 
 end # module PolytopeMeshes

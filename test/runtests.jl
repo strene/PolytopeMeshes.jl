@@ -231,4 +231,149 @@ using PolytopeMeshes
         @test all(G.cells.volumes .> 0)
     end
 
+    @testset "Extrude - single layer" begin
+        # Create a simple 2D mesh and extrude it
+        pts = zeros(9, 2)
+        idx = 1
+        for y in [0.25, 0.5, 0.75]
+            for x in [0.25, 0.5, 0.75]
+                pts[idx, :] = [x, y]
+                idx += 1
+            end
+        end
+        bnd = [0.0 0.0; 1.0 0.0; 1.0 1.0; 0.0 1.0]
+        G2d = clipped_voronoi_2d(pts, bnd)
+        compute_geometry!(G2d)
+
+        G3d = extrude(G2d, 1.0, 1)
+
+        @test G3d.meshdim == 3
+        @test G3d.nodes.num == G2d.nodes.num * 2
+        @test G3d.cells.num == G2d.cells.num
+        @test size(G3d.nodes.coords, 2) == 3
+
+        # Compute 3D geometry
+        compute_geometry!(G3d)
+        @test all(G3d.cells.volumes .> 0)
+        # Volume should equal 2D area * height (height = 1.0)
+        @test isapprox(sum(G3d.cells.volumes), sum(G2d.cells.volumes) * 1.0; atol=0.05)
+    end
+
+    @testset "Extrude - multiple layers" begin
+        pts = zeros(4, 2)
+        pts[1, :] = [0.25, 0.25]
+        pts[2, :] = [0.75, 0.25]
+        pts[3, :] = [0.75, 0.75]
+        pts[4, :] = [0.25, 0.75]
+        bnd = [0.0 0.0; 1.0 0.0; 1.0 1.0; 0.0 1.0]
+        G2d = clipped_voronoi_2d(pts, bnd)
+        compute_geometry!(G2d)
+
+        # 3 layers from 0 to 1.0
+        G3d = extrude(G2d, 1.0, 3)
+
+        @test G3d.meshdim == 3
+        @test G3d.cells.num == G2d.cells.num * 3
+        @test G3d.nodes.num == G2d.nodes.num * 4  # 4 levels
+
+        compute_geometry!(G3d)
+        @test all(G3d.cells.volumes .> 0)
+        @test isapprox(sum(G3d.cells.volumes), sum(G2d.cells.volumes) * 1.0; atol=0.05)
+    end
+
+    @testset "Extrude - variable layers" begin
+        pts = zeros(4, 2)
+        pts[1, :] = [0.25, 0.25]
+        pts[2, :] = [0.75, 0.25]
+        pts[3, :] = [0.75, 0.75]
+        pts[4, :] = [0.25, 0.75]
+        bnd = [0.0 0.0; 1.0 0.0; 1.0 1.0; 0.0 1.0]
+        G2d = clipped_voronoi_2d(pts, bnd)
+        compute_geometry!(G2d)
+
+        # 2 layers from 0 to 1, then 3 layers from 1 to 3
+        G3d = extrude(G2d, [1.0, 3.0], [2, 3])
+
+        @test G3d.meshdim == 3
+        @test G3d.cells.num == G2d.cells.num * 5
+        @test G3d.nodes.num == G2d.nodes.num * 6  # 6 levels
+
+        compute_geometry!(G3d)
+        @test all(G3d.cells.volumes .> 0)
+        @test isapprox(sum(G3d.cells.volumes), sum(G2d.cells.volumes) * 3.0; atol=0.05)
+    end
+
+    @testset "Extrude - dim kwarg" begin
+        pts = zeros(4, 2)
+        pts[1, :] = [0.25, 0.25]
+        pts[2, :] = [0.75, 0.25]
+        pts[3, :] = [0.75, 0.75]
+        pts[4, :] = [0.25, 0.75]
+        bnd = [0.0 0.0; 1.0 0.0; 1.0 1.0; 0.0 1.0]
+        G2d = clipped_voronoi_2d(pts, bnd)
+
+        # Extrude in x direction
+        Gx = extrude(G2d, 2.0, 1; dim=:x)
+        @test Gx.meshdim == 3
+        # x-coords should contain the extrusion values (0 and 2)
+        @test minimum(Gx.nodes.coords[:, 1]) ≈ 0.0
+        @test maximum(Gx.nodes.coords[:, 1]) ≈ 2.0
+        # y-coords should contain original x values
+        @test minimum(Gx.nodes.coords[:, 2]) ≈ 0.0
+        @test maximum(Gx.nodes.coords[:, 2]) ≈ 1.0
+
+        # Extrude in y direction
+        Gy = extrude(G2d, 2.0, 1; dim=:y)
+        @test Gy.meshdim == 3
+        # y-coords should contain the extrusion values
+        @test minimum(Gy.nodes.coords[:, 2]) ≈ 0.0
+        @test maximum(Gy.nodes.coords[:, 2]) ≈ 2.0
+
+        # Extrude in z direction (default)
+        Gz = extrude(G2d, 2.0, 1; dim=:z)
+        @test Gz.meshdim == 3
+        @test minimum(Gz.nodes.coords[:, 3]) ≈ 0.0
+        @test maximum(Gz.nodes.coords[:, 3]) ≈ 2.0
+    end
+
+    @testset "Extrude - tag propagation" begin
+        wl = [Float64[0.2 0.8; 0.8 0.2]]
+        fl = [Float64[0.2 0.2; 0.8 0.8]]
+        G2d, _, _ = composite_voronoi_mesh_2d([0.1, 0.1], [1.0, 1.0];
+            cell_constraints=wl, face_constraints=fl)
+
+        G3d = extrude(G2d, 1.0, 2)
+
+        # Cell tags should be propagated to all layers
+        n_tagged_2d = count(G2d.cells.tag)
+        n_tagged_3d = count(G3d.cells.tag)
+        @test n_tagged_3d == n_tagged_2d * 2
+
+        # Face tags should be propagated to vertical faces
+        n_ftagged_2d = count(G2d.faces.tag)
+        n_ftagged_3d = count(G3d.faces.tag)
+        @test n_ftagged_3d == n_ftagged_2d * 2
+    end
+
+    @testset "Extrude - 3D geometry correctness" begin
+        # Use composite mesh for a well-defined 2D mesh
+        G2d, _, _ = composite_voronoi_mesh_2d([0.2, 0.2], [1.0, 1.0])
+        compute_geometry!(G2d)
+
+        G3d = extrude(G2d, 2.0, 1)
+        compute_geometry!(G3d)
+
+        # Total volume should be 2D area * height
+        @test isapprox(sum(G3d.cells.volumes), sum(G2d.cells.volumes) * 2.0; atol=0.1)
+
+        # All volumes should be positive
+        @test all(G3d.cells.volumes .> 0)
+
+        # Cell centroids z-coordinate should be at midpoint (1.0)
+        @test all(isapprox.(G3d.cells.centroids[:, 3], 1.0; atol=1e-10))
+
+        # All face areas should be positive
+        @test all(G3d.faces.areas .> 0)
+    end
+
 end

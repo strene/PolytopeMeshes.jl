@@ -10,10 +10,12 @@ SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 [weakdeps]
 GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
 Gmsh = "705231aa-382f-11e9-3f0c-b7cb4346fdeb"
+Jutul = "2b460a1a-8a2b-45b2-b125-b5c536396eb7"
 
 [extensions]
 PolytopeMeshesGLMakieExt = "GLMakie"
 PolytopeMeshesGmshExt = "Gmsh"
+PolytopeMeshesJutulExt = "Jutul"
 
 [compat]
 GLMakie = "0.9, 0.10, 0.11, 0.12, 0.13"
