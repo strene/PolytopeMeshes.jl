@@ -376,4 +376,118 @@ using PolytopeMeshes
         @test all(G3d.faces.areas .> 0)
     end
 
+    @testset "DistMesh 2D - basic" begin
+        # Simple rectangular domain
+        fd = p -> PolytopeMeshes._drectangle(p, 0.0, 1.0, 0.0, 1.0)
+        fh = p -> ones(size(p, 1))
+        bbox = [0.0 0.0; 1.0 1.0]
+        pfix = zeros(0, 2)
+
+        pts, tri = PolytopeMeshes.distmesh_2d(fd, fh, 0.2, bbox, pfix; max_iter=100)
+        @test size(pts, 1) > 0
+        @test size(pts, 2) == 2
+        @test size(tri, 1) > 0
+        @test size(tri, 2) == 3
+    end
+
+    @testset "DistMesh 2D - with fixed points" begin
+        fd = p -> PolytopeMeshes._drectangle(p, 0.0, 1.0, 0.0, 1.0)
+        fh = p -> ones(size(p, 1))
+        bbox = [0.0 0.0; 1.0 1.0]
+        pfix = [0.5 0.5; 0.25 0.25]
+
+        pts, _ = PolytopeMeshes.distmesh_2d(fd, fh, 0.3, bbox, pfix; max_iter=100)
+        # Fixed points should be the first rows
+        @test isapprox(pts[1, :], [0.5, 0.5]; atol=1e-10)
+        @test isapprox(pts[2, :], [0.25, 0.25]; atol=1e-10)
+    end
+
+    @testset "Distance functions" begin
+        # drectangle
+        p = [0.5 0.5; 1.5 0.5; 0.0 0.0]
+        d = PolytopeMeshes._drectangle(p, 0.0, 1.0, 0.0, 1.0)
+        @test d[1] < 0  # inside
+        @test d[2] > 0  # outside
+
+        # dpoly
+        pv = [0.0 0.0; 1.0 0.0; 1.0 1.0; 0.0 1.0]
+        d2 = PolytopeMeshes._dpoly(p, pv)
+        @test d2[1] < 0  # inside
+        @test d2[2] > 0  # outside
+    end
+
+    @testset "Voronoi mesh 2D - basic" begin
+        G, pts, F = voronoi_mesh_2d(0.2, [1.0, 1.0])
+
+        @test G.cells.num > 0
+        @test G.faces.num > 0
+        @test G.nodes.num > 0
+
+        compute_geometry!(G)
+        @test isapprox(sum(G.cells.volumes), 1.0; atol=0.05)
+        @test all(G.cells.volumes .> 0)
+    end
+
+    @testset "Voronoi mesh 2D - with cell constraints" begin
+        wl = [Float64[0.2 0.8; 0.8 0.2]]
+        G, pts, F = voronoi_mesh_2d(0.2, [1.0, 1.0];
+            cell_constraints=wl)
+
+        @test G.cells.num > 0
+        @test any(G.cells.tag)  # Some cells should be tagged as wells
+    end
+
+    @testset "Voronoi mesh 2D - with face constraints" begin
+        fl = [Float64[0.2 0.2; 0.8 0.8]]
+        G, pts, F = voronoi_mesh_2d(0.2, [1.0, 1.0];
+            face_constraints=fl)
+
+        @test G.cells.num > 0
+        @test size(F.f_pts, 1) > 0
+        @test any(G.faces.tag)  # Some faces should be tagged
+    end
+
+    @testset "Voronoi mesh 2D - with both constraints" begin
+        fl = [Float64[0.2 0.2; 0.8 0.8]]
+        wl = [Float64[0.2 0.8; 0.8 0.2]]
+        G, pts, F = voronoi_mesh_2d(0.1, [1.0, 1.0];
+            cell_constraints=wl, face_constraints=fl)
+
+        @test G.cells.num > 0
+        @test any(G.cells.tag)
+        @test any(G.faces.tag)
+
+        compute_geometry!(G)
+        @test all(G.cells.volumes .> 0)
+        @test isapprox(sum(G.cells.volumes), 1.0; atol=0.05)
+    end
+
+    @testset "Voronoi mesh 2D - polygon boundary" begin
+        poly = Float64[0.0 0.0; 1.0 0.0; 0.5 1.0]
+        G, _, _ = voronoi_mesh_2d(0.2, [1.0, 1.0]; poly_bdr=poly)
+
+        @test G.cells.num > 0
+        compute_geometry!(G)
+        @test all(G.cells.volumes .> 0)
+        @test isapprox(sum(G.cells.volumes), 0.5; atol=0.1)
+    end
+
+    @testset "Voronoi mesh 2D - refinement" begin
+        wl = [Float64[0.5 0.2; 0.5 0.8]]
+        G, _, _ = voronoi_mesh_2d(0.2, [1.0, 1.0];
+            cell_constraints=wl, cc_refinement=true, cc_factor=0.5)
+
+        @test G.cells.num > 0
+        @test any(G.cells.tag)
+    end
+
+    @testset "Voronoi mesh 2D - suf_fc_cond=false" begin
+        fl = [Float64[0.2 0.2; 0.8 0.8]]
+        G, _, F = voronoi_mesh_2d(0.2, [1.0, 1.0];
+            face_constraints=fl, suf_fc_cond=false)
+
+        @test G.cells.num > 0
+        @test size(F.f_pts, 1) > 0
+    end
+
 end

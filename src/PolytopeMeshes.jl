@@ -36,7 +36,9 @@ include("voronoi2D/surface_sites_2d.jl")
 include("voronoi2D/surface_suf_cond_2d.jl")
 include("voronoi2D/clipped_voronoi_2d.jl")
 include("voronoi2D/sort_edges.jl")
+include("voronoi2D/distmesh_2d.jl")
 include("voronoi2D/composite_voronoi_mesh_2d.jl")
+include("voronoi2D/voronoi_mesh_2d.jl")
 
 # 3D mesh generation
 include("extrude.jl")
@@ -44,6 +46,7 @@ include("extrude.jl")
 # Exports
 export UnstructuredMesh
 export composite_voronoi_mesh_2d
+export voronoi_mesh_2d
 export clipped_voronoi_2d
 export line_sites_2d
 export surface_sites_2d
