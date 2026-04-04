@@ -424,6 +424,8 @@ using PolytopeMeshes
         @test G.nodes.num > 0
 
         compute_geometry!(G)
+        # Tolerance is 5% because DistMesh is iterative and boundary cells
+        # may have slight volume deviations after clipping
         @test isapprox(sum(G.cells.volumes), 1.0; atol=0.05)
         @test all(G.cells.volumes .> 0)
     end

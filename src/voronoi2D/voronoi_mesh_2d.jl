@@ -103,6 +103,7 @@ function voronoi_mesh_2d(
     # ── Compute grid sizes ──
     cc_grid_size = res_grid_size * cc_factor
     fc_grid_size = res_grid_size * fc_factor
+    # Absolute spacing function: returns desired distance between CC sites
     cc_rho_scaled = x -> cc_grid_size * cc_rho(x)
     @assert cc_grid_size > 0
     @assert fc_grid_size > 0
@@ -193,13 +194,15 @@ function voronoi_mesh_2d(
     end
 
     # ── Calculate fault offset for se_ptn ──
+    # When CC refinement is active, use a 20% enlarged grid size for the fault
+    # line length to ensure sufficient spacing between CC and FC sites.
     if cc_refinement
         f_len = cc_grid_size * fc_factor * 1.2
     else
         f_len = fc_grid_size
     end
-    bisect_pnt = (f_len^2 - (circle_factor * f_len)^2 +
-                  (circle_factor * f_len)^2) / (2 * f_len)
+    # Bisect point along fault line segment (simplifies to f_len / 2)
+    bisect_pnt = f_len / 2
     fault_offset = sqrt(max(0, (circle_factor * f_len)^2 - bisect_pnt^2))
 
     # ── Create cell constraint sites ──
@@ -231,6 +234,10 @@ function voronoi_mesh_2d(
     end
 
     # ── Create density functions ──
+    # Refinement uses an exponential transition: density increases (cells get
+    # larger) with distance from constraint sites, controlled by cc_eps/fc_eps.
+    # The factor 1.2 ensures the transition slightly overshoots the baseline
+    # density, yielding a smoother Delaunay triangulation near constraints.
     if cc_refinement && size(well_pts, 1) > 0
         hresw = function (x)
             md = _min_pdist(x, well_pts)

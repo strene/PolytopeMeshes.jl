@@ -145,11 +145,13 @@ function distmesh_2d(fd::Function, fh::Function, h0::Float64,
     max_iter::Int = 500,
     triangulation::TriangulationBackend = default_triangulation_backend())
 
-    # Algorithm parameters
-    dptol = 0.001       # convergence tolerance
-    ttol = 0.1          # retriangulation threshold
-    Fscale = 1.2        # force scaling factor
-    deltat = 0.2        # time step for point movement
+    # Standard DistMesh algorithm parameters (Persson & Strang, 2004).
+    # These are well-established defaults and are not exposed as keyword arguments
+    # to keep the API simple.
+    dptol = 0.001       # convergence tolerance: max relative displacement
+    ttol = 0.1          # retriangulation threshold: max relative displacement
+    Fscale = 1.2        # force scaling: ratio of desired to actual edge length
+    deltat = 0.2        # time step for point movement (damping factor)
     geps = 0.001 * h0   # tolerance for inside/outside tests
     deps = sqrt(eps()) * h0  # step size for numerical gradient
 
