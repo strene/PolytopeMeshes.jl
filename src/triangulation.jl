@@ -54,3 +54,37 @@ function set_default_triangulation_backend!(backend::TriangulationBackend)
     _default_backend[] = backend
     return backend
 end
+
+"""
+    generate_background_grid_2d(backend, fd, fh, h0, bbox, p_fix; kwargs...)
+
+Generate a 2D background grid (point distribution and triangulation) using the
+given `backend`.
+
+When the backend is [`BowyerWatson`](@ref), this delegates to `distmesh_2d` for
+iterative force-based point equilibration with Delaunay retriangulation.
+
+Non-default backends (e.g. `GmshTriangulation`) may use their own mesh
+generation strategies, bypassing DistMesh entirely.
+
+# Arguments
+- `backend`: A [`TriangulationBackend`](@ref) instance
+- `fd`: Signed distance function `fd(p) -> Vector{Float64}`.
+  Returns negative values inside the domain, positive outside.
+- `fh`: Element size function `fh(p) -> Vector{Float64}`.
+  Returns the desired relative edge length at each point.
+- `h0`: Initial (base) edge length for the background grid.
+- `bbox`: Bounding box `[x_min y_min; x_max y_max]` (2×2 matrix).
+- `p_fix`: Fixed points that must appear in the output (n×2 matrix).
+  These points appear first in the output.
+
+# Keyword Arguments
+- `max_iter`: Maximum number of iterations (default: 500, used by DistMesh)
+- `poly_bdr`: Polygon boundary vertices (k×2 matrix, default: `zeros(0, 2)`).
+  Used by backends that need explicit geometry (e.g. Gmsh).
+
+# Returns
+- `p`: Point coordinates (n×2 matrix). Fixed points are the first `nfix` rows.
+- `t`: Triangulation (m×3 matrix of vertex indices).
+"""
+function generate_background_grid_2d end

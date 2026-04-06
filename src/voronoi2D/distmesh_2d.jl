@@ -334,3 +334,11 @@ function distmesh_2d(fd::Function, fh::Function, h0::Float64,
 
     return p, t
 end
+
+# BowyerWatson backend — wraps distmesh_2d for background grid generation.
+function generate_background_grid_2d(::BowyerWatson, fd::Function, fh::Function,
+    h0::Float64, bbox::Matrix{Float64}, p_fix::Matrix{Float64};
+    max_iter::Int = 500, poly_bdr::Matrix{Float64} = zeros(0, 2))
+    return distmesh_2d(fd, fh, h0, bbox, p_fix;
+        max_iter = max_iter, triangulation = BowyerWatson())
+end

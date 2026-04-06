@@ -61,6 +61,7 @@ export plot_mesh
 export TriangulationBackend
 export BowyerWatson
 export triangulate_2d
+export generate_background_grid_2d
 export default_triangulation_backend
 export set_default_triangulation_backend!
 

@@ -309,11 +309,12 @@ function voronoi_mesh_2d(
         hres = hresw
     end
 
-    # ── Assemble fixed points and run DistMesh ──
+    # ── Assemble fixed points and run background grid generation ──
     fixed_pts = vcat(F.f_pts, well_pts, prot_pts, F.t_pts, corners)
 
-    pts_out, _ = distmesh_2d(fd, hres, ds, rectangle, fixed_pts;
-        max_iter = max_iter, triangulation = triangulation)
+    pts_out, _ = generate_background_grid_2d(triangulation, fd, hres, ds,
+        rectangle, fixed_pts;
+        max_iter = max_iter, poly_bdr = poly_bdr)
 
     # ── Separate point types ──
     nf = size(F.f_pts, 1)
