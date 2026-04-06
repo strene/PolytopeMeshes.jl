@@ -271,6 +271,7 @@ function PolytopeMeshes.generate_background_grid_2d(
         # ── Build output: fixed points first, then generated interior points ──
         # tag_to_output maps Gmsh node tags to output point indices
         tag_to_output = Dict{UInt64,Int}()
+        # Tolerance for inside/outside tests — matches distmesh_2d's geps
         geps = 0.001 * h0
 
         # Map fixed point mesh nodes to their output indices
