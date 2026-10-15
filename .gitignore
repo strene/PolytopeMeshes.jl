@@ -1,0 +1,5 @@
+Manifest.toml
+*.vtu
+*.vtk
+*.pvd
+/docs/build/

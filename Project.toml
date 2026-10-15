@@ -1,0 +1,35 @@
+name = "PolytopeMeshes"
+uuid = "0984ed8a-4ff9-402b-b612-41179bcc44ea"
+version = "0.1.0"
+authors = ["Øystein Klemetsdal <oystein.klemetsdal@sintef.no>"]
+
+[deps]
+DistMesh = "f7ee28b6-bfbf-11e9-3e31-8961b86f052c"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+NearestNeighbors = "b8a86587-4115-5ab1-83bc-aa920d37bbce"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
+WriteVTK = "64499a7a-5c06-52f2-abe2-ccb03c286192"
+
+[weakdeps]
+Jutul = "2b460a1a-8a2b-45b2-b125-b5c536396eb9"
+
+[extensions]
+PolytopeMeshesJutulExt = "Jutul"
+
+[compat]
+DistMesh = "0.2"
+Jutul = "0.5"
+LinearAlgebra = "1"
+NearestNeighbors = "0.4"
+Random = "1"
+StaticArrays = "1"
+WriteVTK = "1.18"
+julia = "1.10"
+
+[extras]
+Jutul = "2b460a1a-8a2b-45b2-b125-b5c536396eb9"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test", "Jutul"]
