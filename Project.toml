@@ -12,15 +12,21 @@ StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 WriteVTK = "64499a7a-5c06-52f2-abe2-ccb03c286192"
 
 [weakdeps]
+GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
 Jutul = "2b460a1a-8a2b-45b2-b125-b5c536396eb9"
+Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
 
 [extensions]
+PolytopeMeshesGLMakieExt = "GLMakie"
 PolytopeMeshesJutulExt = "Jutul"
+PolytopeMeshesMakieExt = "Makie"
 
 [compat]
 DistMesh = "0.2"
+GLMakie = "0.13"
 Jutul = "0.5"
 LinearAlgebra = "1"
+Makie = "0.24"
 NearestNeighbors = "0.4"
 Random = "1"
 StaticArrays = "1"
@@ -28,8 +34,9 @@ WriteVTK = "1.18"
 julia = "1.10"
 
 [extras]
+CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 Jutul = "2b460a1a-8a2b-45b2-b125-b5c536396eb9"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test", "Jutul"]
+test = ["Test", "Jutul", "CairoMakie"]

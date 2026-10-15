@@ -69,7 +69,37 @@ G = voronoi_mesh(sites, convex_hull_domain(points))    # convex 3D domains
 G, sites = centroidal_voronoi_mesh(sites, domain; density = x -> 1.0)
 ```
 
-See the `examples` folder for the UPR examples ported to Julia.
+See the `examples` folder for the UPR examples ported to Julia, and
+`examples/plotting.jl` for plotting.
+
+## Plotting
+
+Plotting is provided through package extensions for
+[Makie](https://docs.makie.org), following the approach of Jutul and
+JutulDarcy: load a Makie backend to enable it. GLMakie is recommended, as it
+gives interactive windows; CairoMakie gives static figures (e.g. for
+documentation and papers).
+
+```julia
+using PolytopeMeshes, GLMakie
+
+fig, ax, plt = plot_mesh(G)                    # cells, edges and constraints
+plot_cell_data(G, cell_volumes(G); colormap = :turbo)
+plot_mesh(G; cells = [s[2] < 0.5 for s in G.cell_sites])  # a subset (3D: outer faces)
+
+fig = Figure(); ax = Axis3(fig[1, 1]; aspect = :data)
+plot_faces!(ax, G)                             # faces on the face constraints
+plot_mesh!(ax, G; cells = findall(>(0), G.cell_tags), constraints = false)
+
+plot_interactive(G; data = Dict("depth" => [s[3] for s in G.cell_sites]))
+```
+
+`plot_interactive` opens a viewer (in its own window with GLMakie) with a
+menu to color the cells by cell constraint, volume, index or any field in
+`data`, toggles for cells, edges, face constraints and well sites, and, in
+3D, sliders that select cells by the position of their sites so the inside
+of the mesh and the conforming faces can be inspected. Faces on face
+constraints and cells on cell constraints are colored by constraint index.
 
 ## Triangulation backends
 

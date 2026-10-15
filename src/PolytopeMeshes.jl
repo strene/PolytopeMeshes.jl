@@ -42,6 +42,7 @@ include("grids/pebi_2d.jl")
 include("grids/pebi_3d.jl")
 include("grids/exact_3d.jl")
 include("io/vtk.jl")
+include("plotting.jl")
 
 # Mesh type and queries
 export PolytopalMesh
@@ -73,5 +74,8 @@ export surface_grid_3d, volume_grid_3d, surface_triangulation
 
 # Output
 export write_vtk, write_vtk_faces
+
+# Plotting (implemented in the Makie/GLMakie extensions)
+export plot_mesh, plot_mesh!, plot_cell_data, plot_cell_data!, plot_faces!, plot_interactive
 
 end # module PolytopeMeshes

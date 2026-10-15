@@ -340,6 +340,24 @@ end
         @test sum(t -> abs(PolytopeMeshes.cross2(S1.points[t[2]][1:2] - S1.points[t[1]][1:2], S1.points[t[3]][1:2] - S1.points[t[1]][1:2])) / 2, S1.triangles) ≈ 1.0
     end
 
+    @testset "Plot triangulation and backend check" begin
+        m2 = composite_pebi_grid_2d([0.1, 0.1], [1, 1]; face_constraints = [[[0.2, 0.3], [0.8, 0.6]]])
+        t = PolytopeMeshes.plot_triangulation(m2)
+        @test length(t.points) == length(t.vertex_cell)
+        @test sort(unique(t.vertex_cell)) == 1:number_of_cells(m2)
+        area = sum(abs(PolytopeMeshes.cross2(t.points[j] - t.points[i], t.points[k] - t.points[i])) / 2 for (i, j, k) in t.triangles)
+        @test area ≈ 1.0
+        m3 = composite_pebi_grid_3d((4, 4, 4), (1, 1, 1))
+        t = PolytopeMeshes.plot_triangulation(m3)
+        # Only the outer boundary is drawn for the full mesh
+        @test length(t.triangles) == 2 * 6 * 16
+        t = PolytopeMeshes.plot_triangulation(m3, [s[1] < 0.5 for s in m3.cell_sites])
+        @test length(t.triangles) == 2 * (16 + 4 * 8 + 16)
+        # Without a Makie backend the plotting functions give an error
+        @test !PolytopeMeshes.check_plotting_availability(throw = false)
+        @test_throws ErrorException plot_mesh(m2)
+    end
+
     @testset "Output" begin
         m2 = composite_pebi_grid_2d([0.1, 0.1], [1, 1]; face_constraints = [[[0.2, 0.3], [0.8, 0.6]]])
         m3 = composite_pebi_grid_3d((4, 4, 4), (1, 1, 1))
@@ -374,3 +392,6 @@ end
         @test length(faults) == count(==(1), m2.face_tags)
     end
 end
+
+# Plotting through the Makie extension (loads CairoMakie)
+include("plotting.jl")
