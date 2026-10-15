@@ -8,7 +8,7 @@
     TriangulationBackend
 
 Abstract type for the backends used to distribute points and triangulate 2D
-polygons, e.g. the background sites of [`pebi_grid_2d`](@ref) and the
+polygons, e.g. the background sites of [`voronoi_grid_2d`](@ref) and the
 surface triangulations of [`surface_triangulation`](@ref). The default is
 [`DistMeshBackend`](@ref).
 
@@ -36,7 +36,7 @@ Triangulate the polygon with the given backend. Methods must accept:
 and return `(points, triangles)` where `points[1:length(fixed)]` are the
 fixed points in the given order (up to round-off) and `triangles` is a
 vector of `NTuple{3, Int}`. A backend that only distributes points may
-return no triangles; it can then be used for the PEBI grid generators but not
+return no triangles; it can then be used for the Voronoi grid generators but not
 for [`surface_triangulation`](@ref). Points outside the polygon and degenerate
 triangles are removed afterwards, so backends need not filter them.
 """

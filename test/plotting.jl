@@ -5,8 +5,8 @@ using CairoMakie
     @test !PolytopeMeshes.plotting_is_interactive()
     fl = [[[0.2, 0.2], [0.8, 0.8]]]
     wl = [[[0.2, 0.8], [0.8, 0.2]]]
-    m2 = composite_pebi_grid_2d([0.1, 0.1], [1, 1]; cell_constraints = wl, face_constraints = fl)
-    m3 = composite_pebi_grid_3d((4, 4, 4), (1, 1, 1); cell_constraints = [[[0.5, 0.5, 0.1], [0.5, 0.5, 0.9]]])
+    m2 = composite_voronoi_grid_2d([0.1, 0.1], [1, 1]; cell_constraints = wl, face_constraints = fl)
+    m3 = composite_voronoi_grid_3d((4, 4, 4), (1, 1, 1); cell_constraints = [[[0.5, 0.5, 0.1], [0.5, 0.5, 0.9]]])
     mktempdir() do dir
         for (name, m) in (("m2", m2), ("m3", m3))
             fig, ax, p = plot_polymesh(m)

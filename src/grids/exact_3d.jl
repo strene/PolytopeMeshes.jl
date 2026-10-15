@@ -154,7 +154,7 @@ end
 """
     surface_grid_3d(surfaces, grids_1, intersections, ds, gamma; triangulation, rng)
 
-2D PEBI grids of planar polygonal surfaces conforming to the 1D grids of
+2D Voronoi grids of planar polygonal surfaces conforming to the 1D grids of
 their intersections (UPR: `surfaceGrid3D`). `ds` is the 2D cell size and
 `gamma` the distance from the intersection lines to the 2D sites next to
 them (reduce it if there are problems at intersections). The background
@@ -246,7 +246,7 @@ end
 """
     volume_grid_3d(pdims, surfaces, grids_2, ds, gamma)
 
-3D PEBI grid of the box `[0, pdims]` conforming exactly to the 2D surface
+3D Voronoi grid of the box `[0, pdims]` conforming exactly to the 2D surface
 grids `grids_2` (UPR: `volumeGrid3D`). The sites next to the surfaces are
 placed at distance `gamma` on both sides of the 2D sites, and the background
 sites form a Cartesian lattice of size about `1.2*ds`. Faces on the surfaces

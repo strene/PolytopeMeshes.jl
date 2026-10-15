@@ -1,12 +1,12 @@
 # 2D grid generators (UPR: clippedPebi2D, pebiGrid2D, compositePebiGrid2D).
 
 """
-    clipped_pebi_grid_2d(sites, boundary)
+    clipped_voronoi_grid_2d(sites, boundary)
 
-Voronoi (PEBI) grid of `sites` clipped against the polygon `boundary` (UPR:
+Voronoi grid of `sites` clipped against the polygon `boundary` (UPR:
 `clippedPebi2D`).
 """
-clipped_pebi_grid_2d(sites, boundary; kwarg...) = voronoi_mesh(sites, PolygonDomain(boundary); kwarg...)
+clipped_voronoi_grid_2d(sites, boundary; kwarg...) = voronoi_mesh(sites, PolygonDomain(boundary); kwarg...)
 
 function _domain_2d(pdims, polygon)
     if isnothing(polygon)
@@ -53,7 +53,7 @@ function _cell_constraint_sites_2d(cell_constraints, face_constraints; cc_grid_s
     )
 end
 
-function _pebi_mesh_2d(F, W, other_sites, domain; kwarg...)
+function _voronoi_mesh_2d(F, W, other_sites, domain; kwarg...)
     nF = length(F.sites)
     nW = length(W.sites)
     sites = vcat(F.sites, W.sites, other_sites)
@@ -65,9 +65,9 @@ function _pebi_mesh_2d(F, W, other_sites, domain; kwarg...)
 end
 
 """
-    pebi_grid_2d(grid_size, pdims; kwarg...)
+    voronoi_grid_2d(grid_size, pdims; kwarg...)
 
-Fully unstructured 2D PEBI grid that conforms to face constraints (faults,
+Fully unstructured 2D Voronoi grid that conforms to face constraints (faults,
 fractures) and cell constraints (wells, points) (UPR: `pebiGrid2D`). The
 background sites are distributed with DistMesh.
 
@@ -106,7 +106,7 @@ Returns a [`PolytopalMesh`](@ref). Cells generated from cell constraints are
 tagged with the constraint index in `cell_tags`, faces on face constraints
 with the constraint index in `face_tags`.
 """
-function pebi_grid_2d(grid_size, pdims = nothing;
+function voronoi_grid_2d(grid_size, pdims = nothing;
         polygon = nothing,
         cell_constraints = Vector{Vec2}[],
         cc_factor = 1.0,
@@ -175,13 +175,13 @@ function pebi_grid_2d(grid_size, pdims = nothing;
     else
         background, _ = remove_conflict_points(background, F.sites, F.spacing)
     end
-    return _pebi_mesh_2d(F, W, background, domain; kwarg...)
+    return _voronoi_mesh_2d(F, W, background, domain; kwarg...)
 end
 
 """
-    composite_pebi_grid_2d(cell_size, pdims; kwarg...)
+    composite_voronoi_grid_2d(cell_size, pdims; kwarg...)
 
-2D PEBI grid with a Cartesian background grid that is refined around cell
+2D Voronoi grid with a Cartesian background grid that is refined around cell
 constraints and conforms to face and cell constraints (UPR:
 `compositePebiGrid2D`).
 
@@ -191,13 +191,13 @@ rectangle `[0, pdims[1]] × [0, pdims[2]]` unless `polygon` is given.
 # Keyword arguments
 - `polygon`, `cell_constraints`, `cc_factor`, `interpolate_cc`, `cc_rho`,
   `protection_layer`, `protection_distance`, `face_constraints`,
-  `fc_factor`, `interpolate_fc`, `circle_factor`: see [`pebi_grid_2d`](@ref).
+  `fc_factor`, `interpolate_fc`, `circle_factor`: see [`voronoi_grid_2d`](@ref).
 - `mlqt_max_level = 0`: number of quadtree refinement levels around the cell
   constraints.
 - `mlqt_level_steps = -1`: refinement distance per level, see
   [`mlqt`](@ref).
 """
-function composite_pebi_grid_2d(cell_size, pdims = nothing;
+function composite_voronoi_grid_2d(cell_size, pdims = nothing;
         polygon = nothing,
         cell_constraints = Vector{Vec2}[],
         cc_factor = 1.0,
@@ -256,5 +256,5 @@ function composite_pebi_grid_2d(cell_size, pdims = nothing;
     background, _ = remove_conflict_points(background, F.sites, F.spacing)
     background, _ = remove_conflict_points(background, F.centers, F.radii)
     other = vcat(W.protection_sites, tips, background)
-    return _pebi_mesh_2d(F, W, other, domain; kwarg...)
+    return _voronoi_mesh_2d(F, W, other, domain; kwarg...)
 end

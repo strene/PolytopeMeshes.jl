@@ -1,17 +1,17 @@
 # 3D grid generators (UPR: mirroredPebi3D, compositePebiGrid3D).
 
 """
-    mirrored_pebi_grid_3d(sites, boundary_points)
+    mirrored_voronoi_grid_3d(sites, boundary_points)
 
-Voronoi (PEBI) grid of `sites` restricted to the convex hull of
+Voronoi grid of `sites` restricted to the convex hull of
 `boundary_points` (UPR: `mirroredPebi3D`).
 """
-mirrored_pebi_grid_3d(sites, boundary_points; kwarg...) = voronoi_mesh(sites, convex_hull_domain(boundary_points); kwarg...)
+mirrored_voronoi_grid_3d(sites, boundary_points; kwarg...) = voronoi_mesh(sites, convex_hull_domain(boundary_points); kwarg...)
 
 """
-    composite_pebi_grid_3d(celldim, pdims; kwarg...)
+    composite_voronoi_grid_3d(celldim, pdims; kwarg...)
 
-3D PEBI grid with a Cartesian background grid of `celldim = (nx, ny, nz)`
+3D Voronoi grid with a Cartesian background grid of `celldim = (nx, ny, nz)`
 cells in the box `[0, pdims]`, refined around cell constraints, that conforms
 to triangulated face constraints and to cell constraints (UPR:
 `compositePebiGrid3D`).
@@ -34,7 +34,7 @@ faces stop at the edges.
 Cells generated from cell constraints are tagged with the constraint index in
 `cell_tags`, faces on the surfaces with the surface index in `face_tags`.
 """
-function composite_pebi_grid_3d(celldim, pdims;
+function composite_voronoi_grid_3d(celldim, pdims;
         cell_constraints = Vector{Vec3}[],
         cc_rho = nothing,
         mlqt_max_level = 0,
@@ -88,7 +88,7 @@ end
 Triangulate the planar polygon `polygon` (vertices in 3D, or in 2D) with
 approximately equilateral triangles of size `h`. Returns `(points,
 triangles)` for use with [`surface_sites_3d`](@ref) or
-[`composite_pebi_grid_3d`](@ref).
+[`composite_voronoi_grid_3d`](@ref).
 
 The triangulation is created by `triangulation` (default
 [`DistMeshBackend`](@ref)), see [`TriangulationBackend`](@ref).

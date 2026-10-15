@@ -12,7 +12,7 @@ faults = [
     [[0.6, 0.2], [0.3, 0.7]],
     [[0.8, 0.4], [0.5, 0.8]],
 ]
-G2 = pebi_grid_2d(1 / 24, [1, 1]; cell_constraints = well, cc_factor = 0.25,
+G2 = voronoi_grid_2d(1 / 24, [1, 1]; cell_constraints = well, cc_factor = 0.25,
     cc_refinement = true, cc_eps = 1 / 12, face_constraints = faults)
 
 # Mesh with the faults (lines) and the well cells (markers) highlighted

@@ -93,7 +93,7 @@ end
         end
         @testset "Convex hull domain" begin
             pts = [Vec3(rand(rng, 3)...) for _ in 1:200]
-            m = mirrored_pebi_grid_3d(pts, [[0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]])
+            m = mirrored_voronoi_grid_3d(pts, [[0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]])
             @test check_mesh(m).ok
             @test sum(cell_volumes(m)) ≈ 1 / 6
             @test number_of_cells(m) == count(p -> sum(p) <= 1, pts)
@@ -147,12 +147,12 @@ end
         end
     end
 
-    @testset "pebi_grid_2d and composite_pebi_grid_2d" begin
+    @testset "voronoi_grid_2d and composite_voronoi_grid_2d" begin
         fl = [[[0.2, 0.2], [0.8, 0.8]]]
         wl = [[[0.2, 0.8], [0.8, 0.2]]]
         faults = [to_points(l, 2) for l in fl]
-        for m in (pebi_grid_2d(1 / 10, [1, 1]; cell_constraints = wl, face_constraints = fl),
-                  composite_pebi_grid_2d([1 / 10, 1 / 10], [1, 1]; cell_constraints = wl, face_constraints = fl))
+        for m in (voronoi_grid_2d(1 / 10, [1, 1]; cell_constraints = wl, face_constraints = fl),
+                  composite_voronoi_grid_2d([1 / 10, 1 / 10], [1, 1]; cell_constraints = wl, face_constraints = fl))
             @test check_mesh(m).ok
             @test sum(cell_volumes(m)) ≈ 1.0
             @test max_tagged_distance(m, faults) < 1e-10
@@ -166,7 +166,7 @@ end
         well = [[[xx, 0.2 + xx^2] for xx in x]]
         fault = [[[0.3, 0.1], [0.1, 0.3]], [[0.3, 0.1], [0.4, 0.7]], [[0.6, 0.2], [0.3, 0.7]], [[0.8, 0.4], [0.5, 0.8]]]
         faults = [to_points(l, 2) for l in fault]
-        m = composite_pebi_grid_2d([1 / 24, 1 / 24], [1, 1]; cell_constraints = well, cc_factor = 0.5,
+        m = composite_voronoi_grid_2d([1 / 24, 1 / 24], [1, 1]; cell_constraints = well, cc_factor = 0.5,
             face_constraints = fault, fc_factor = 0.5, mlqt_max_level = 1)
         @test check_mesh(m).ok
         @test max_tagged_distance(m, faults) < 1e-10
@@ -174,7 +174,7 @@ end
             @test tagged_length(m, k) ≈ polyline_length(faults[k]) rtol = 1e-8
         end
         @test tagged_cells_connected(m, 1)
-        m = pebi_grid_2d(1 / 24, [1, 1]; cell_constraints = well, cc_factor = 0.25, cc_refinement = true,
+        m = voronoi_grid_2d(1 / 24, [1, 1]; cell_constraints = well, cc_factor = 0.25, cc_refinement = true,
             cc_eps = 1 / 12, face_constraints = fault)
         @test check_mesh(m).ok
         @test max_tagged_distance(m, faults) < 1e-10
@@ -182,7 +182,7 @@ end
 
         l = [[[0.1, 0.42], [0.4, 0.55], [0.7, 0.65]], [[0.8, 0.13], [0.6, 0.4], [0.55, 0.6]]]
         faults = [to_points(x, 2) for x in l]
-        m = composite_pebi_grid_2d([1 / 30, 1 / 30], [1, 1.15]; face_constraints = l)
+        m = composite_voronoi_grid_2d([1 / 30, 1 / 30], [1, 1.15]; face_constraints = l)
         @test check_mesh(m).ok
         @test max_tagged_distance(m, faults) < 1e-10
         @test tagged_length(m, 1) ≈ polyline_length(faults[1]) rtol = 1e-8
@@ -193,7 +193,7 @@ end
         wells = [[[0.5, 0.2], [0.5, 0.3], [0.47, 0.4], [0.4, 0.5], [0.33, 0.6], [0.26, 0.7]],
                  [[0.5, 0.3], [0.53, 0.4], [0.58, 0.5]],
                  [[0.5, 0.45], [0.5, 0.55], [0.45, 0.65], [0.4, 0.75], [0.38, 0.85]]]
-        m = composite_pebi_grid_2d([1 / 24, 1 / 24], [1, 1]; cell_constraints = wells, cc_factor = 0.25,
+        m = composite_voronoi_grid_2d([1 / 24, 1 / 24], [1, 1]; cell_constraints = wells, cc_factor = 0.25,
             mlqt_max_level = 2, mlqt_level_steps = [0.1, 0.05])
         @test check_mesh(m).ok
         lines = [to_points(w, 2) for w in wells]
@@ -202,7 +202,7 @@ end
         end
         poly = [[0, 0], [1, 0], [1.2, 0.6], [0.6, 1], [0, 0.7]]
         fault = [[[0.1, 0.6], [0.9, 0.2]]]
-        m = pebi_grid_2d(0.08, nothing; polygon = poly, cell_constraints = [[[0.3, 0.3]], [[0.5, 0.5], [0.9, 0.6]]],
+        m = voronoi_grid_2d(0.08, nothing; polygon = poly, cell_constraints = [[[0.3, 0.3]], [[0.5, 0.5], [0.9, 0.6]]],
             protection_layer = true, face_constraints = fault)
         @test check_mesh(m).ok
         @test sum(cell_volumes(m)) ≈ PolytopeMeshes.domain_volume(PolygonDomain(poly))
@@ -210,7 +210,7 @@ end
         @test max_tagged_distance(m, [to_points(fault[1], 2)]) < 1e-10
     end
 
-    @testset "composite_pebi_grid_3d" begin
+    @testset "composite_voronoi_grid_3d" begin
         nx = 8
         x = range(0, 1, length = nx)
         li = LinearIndices((nx, nx))
@@ -222,7 +222,7 @@ end
         pts1 = vec([Vec3(a, 0.5a + 0.1, b) * 0.99 .+ 0.005 for a in x, b in x])
         pts2 = vec([Vec3(a, -0.5a + 0.6, b) for a in x, b in x])
         well = [[[0.9, 0.75, 0.1], [0.9, 0.9, 0.9]]]
-        m = composite_pebi_grid_3d((nx, nx, nx), (1, 1, 1); face_constraints = [(pts1, tris), (pts2, tris)],
+        m = composite_voronoi_grid_3d((nx, nx, nx), (1, 1, 1); face_constraints = [(pts1, tris), (pts2, tris)],
             fc_rho = 1 / (nx - 1), cell_constraints = well)
         @test check_mesh(m).ok
         @test sum(cell_volumes(m)) ≈ 1.0
@@ -235,7 +235,7 @@ end
         @test count(==(1), m.cell_tags) > 3
         @test tagged_cells_connected(m, 1)
         S = surface_triangulation([[0.1, 0.1, 0.5], [0.9, 0.1, 0.5], [0.9, 0.9, 0.5], [0.1, 0.9, 0.5]], 0.1)
-        m = composite_pebi_grid_3d((10, 10, 10), (1, 1, 1); face_constraints = [S], fc_rho = 0.1)
+        m = composite_voronoi_grid_3d((10, 10, 10), (1, 1, 1); face_constraints = [S], fc_rho = 0.1)
         @test check_mesh(m).ok
         fs = findall(==(1), m.face_tags)
         @test all(abs(m.node_points[i][3] - 0.5) < 1e-10 for f in fs for i in face_nodes(m, f))
@@ -243,7 +243,7 @@ end
         @test sum(mesh_geometry(m).face_areas[fs]) ≈ 0.64 rtol = 1e-8
         @test all(0.1 - 1e-10 <= m.node_points[i][k] <= 0.9 + 1e-10 for f in fs for i in face_nodes(m, f) for k in 1:2)
         # Tips near the domain boundary are rotated into the domain
-        m = composite_pebi_grid_3d((10, 10, 10), (1, 1, 1); face_constraints = [S], fc_rho = 0.13)
+        m = composite_voronoi_grid_3d((10, 10, 10), (1, 1, 1); face_constraints = [S], fc_rho = 0.13)
         @test check_mesh(m).ok
         fs = findall(==(1), m.face_tags)
         @test sum(mesh_geometry(m).face_areas[fs]) ≈ 0.64 rtol = 1e-8
@@ -263,7 +263,7 @@ end
         pts = [Vec3(u, 0.5 + Rc * sin(v / Rc), 0.9 - Rc * cos(v / Rc)) for (u, v) in uv]
         F = surface_sites_3d([(pts, tris)], 0.12; domain = box_domain((0, 0, 0), (1, 1, 1)))
         @test length(F.tips) == 26
-        m = composite_pebi_grid_3d((10, 10, 10), (1, 1, 1); face_constraints = [(pts, tris)], fc_rho = 0.12)
+        m = composite_voronoi_grid_3d((10, 10, 10), (1, 1, 1); face_constraints = [(pts, tris)], fc_rho = 0.12)
         @test check_mesh(m).ok
         @test sum(cell_volumes(m)) ≈ 1.0
         fs = findall(==(1), m.face_tags)
@@ -321,17 +321,17 @@ end
             return vcat(fixed, lattice), NTuple{3, Int}[]
         end
         fl = [[[0.2, 0.2], [0.8, 0.8]]]
-        m = pebi_grid_2d(0.1, [1, 1]; face_constraints = fl, triangulation = LatticeBackend())
+        m = voronoi_grid_2d(0.1, [1, 1]; face_constraints = fl, triangulation = LatticeBackend())
         @test check_mesh(m).ok
         @test max_tagged_distance(m, [to_points(fl[1], 2)]) < 1e-10
         @test tagged_length(m, 1) ≈ polyline_length(to_points(fl[1], 2))
         @test_throws ErrorException surface_triangulation([[0, 0], [1, 0], [1, 1]], 0.2; triangulation = LatticeBackend())
         # Backends that are not implemented, or break the interface, give errors
         struct MissingBackend <: TriangulationBackend end
-        @test_throws ArgumentError pebi_grid_2d(0.1, [1, 1]; triangulation = MissingBackend())
+        @test_throws ArgumentError voronoi_grid_2d(0.1, [1, 1]; triangulation = MissingBackend())
         struct ShuffledBackend <: TriangulationBackend end
         PolytopeMeshes.triangulate_polygon(::ShuffledBackend, polygon, size, fixed; kwarg...) = (reverse(fixed), NTuple{3, Int}[])
-        @test_throws ErrorException pebi_grid_2d(0.1, [1, 1]; face_constraints = fl, triangulation = ShuffledBackend())
+        @test_throws ErrorException voronoi_grid_2d(0.1, [1, 1]; face_constraints = fl, triangulation = ShuffledBackend())
         # The default backend is DistMesh, with reproducible results
         @test PolytopeMeshes.default_triangulation_backend() isa DistMeshBackend
         S1 = surface_triangulation([[0, 0], [1, 0], [1, 1], [0, 1]], 0.2)
@@ -341,13 +341,13 @@ end
     end
 
     @testset "Plot triangulation and backend check" begin
-        m2 = composite_pebi_grid_2d([0.1, 0.1], [1, 1]; face_constraints = [[[0.2, 0.3], [0.8, 0.6]]])
+        m2 = composite_voronoi_grid_2d([0.1, 0.1], [1, 1]; face_constraints = [[[0.2, 0.3], [0.8, 0.6]]])
         t = PolytopeMeshes.plot_triangulation(m2)
         @test length(t.points) == length(t.vertex_cell)
         @test sort(unique(t.vertex_cell)) == 1:number_of_cells(m2)
         area = sum(abs(PolytopeMeshes.cross2(t.points[j] - t.points[i], t.points[k] - t.points[i])) / 2 for (i, j, k) in t.triangles)
         @test area ≈ 1.0
-        m3 = composite_pebi_grid_3d((4, 4, 4), (1, 1, 1))
+        m3 = composite_voronoi_grid_3d((4, 4, 4), (1, 1, 1))
         t = PolytopeMeshes.plot_triangulation(m3)
         # Only the outer boundary is drawn for the full mesh
         @test length(t.triangles) == 2 * 6 * 16
@@ -359,8 +359,8 @@ end
     end
 
     @testset "Output" begin
-        m2 = composite_pebi_grid_2d([0.1, 0.1], [1, 1]; face_constraints = [[[0.2, 0.3], [0.8, 0.6]]])
-        m3 = composite_pebi_grid_3d((4, 4, 4), (1, 1, 1))
+        m2 = composite_voronoi_grid_2d([0.1, 0.1], [1, 1]; face_constraints = [[[0.2, 0.3], [0.8, 0.6]]])
+        m3 = composite_voronoi_grid_3d((4, 4, 4), (1, 1, 1))
         mktempdir() do dir
             for (name, m) in (("m2", m2), ("m3", m3))
                 files = write_vtk(joinpath(dir, name), m; cell_data = Dict("x" => [p[1] for p in m.cell_sites]))
@@ -377,8 +377,8 @@ end
         @test isempty(intersect(names(PolytopeMeshes), names(Jutul)))
         fl = [[[0.2, 0.2], [0.8, 0.8]]]
         wl = [[[0.2, 0.8], [0.8, 0.2]]]
-        m2 = composite_pebi_grid_2d([1 / 10, 1 / 10], [1, 1]; cell_constraints = wl, face_constraints = fl)
-        m3 = composite_pebi_grid_3d((5, 5, 5), (1, 1, 1); cell_constraints = [[[0.2, 0.2, 0.1], [0.3, 0.8, 0.9]]])
+        m2 = composite_voronoi_grid_2d([1 / 10, 1 / 10], [1, 1]; cell_constraints = wl, face_constraints = fl)
+        m3 = composite_voronoi_grid_3d((5, 5, 5), (1, 1, 1); cell_constraints = [[[0.2, 0.2, 0.1], [0.3, 0.8, 0.9]]])
         for m in (m2, m3)
             g = Jutul.UnstructuredMesh(m)
             @test Jutul.number_of_cells(g) == number_of_cells(m)

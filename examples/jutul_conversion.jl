@@ -3,7 +3,7 @@
 using PolytopeMeshes
 using Jutul
 
-G = composite_pebi_grid_2d([0.05, 0.05], [1, 1];
+G = composite_voronoi_grid_2d([0.05, 0.05], [1, 1];
     face_constraints = [[[0.2, 0.2], [0.8, 0.7]]],
     cell_constraints = [[[0.2, 0.8], [0.8, 0.2]]]
 )

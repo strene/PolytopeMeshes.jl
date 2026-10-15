@@ -1,5 +1,5 @@
 # Hierarchical gridding of intersecting planar fractures (UPR example
-# exact_pebi_gridding). The 1D grids of the fracture intersections are
+# exact_voronoi_gridding). The 1D grids of the fracture intersections are
 # created first, then 2D grids of the fractures that conform to the 1D grids,
 # and finally a 3D grid that conforms exactly to the 2D grids.
 using PolytopeMeshes

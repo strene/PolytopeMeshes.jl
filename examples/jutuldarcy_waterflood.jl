@@ -1,4 +1,4 @@
-# Waterflooding on a 3D PEBI grid with JutulDarcy. The grid conforms to two
+# Waterflooding on a 3D Voronoi grid with JutulDarcy. The grid conforms to two
 # vertical wells (cell constraints) and a vertical fault between them (face
 # constraint). The fault is made sealing by setting the transmissibility of
 # the fault faces to zero, which forces the water around the fault.
@@ -17,7 +17,7 @@ wells = [
     [[825.0, 825.0, 5.0], [825.0, 825.0, H - 5.0]], # Producer
 ]
 fault = surface_triangulation([[250.0, 750.0, 0.0], [750.0, 250.0, 0.0], [750.0, 250.0, H], [250.0, 750.0, H]], 25.0)
-G = composite_pebi_grid_3d((20, 20, 4), (L, L, H);
+G = composite_voronoi_grid_3d((20, 20, 4), (L, L, H);
     cell_constraints = wells, cc_rho = H / 4,
     face_constraints = [fault], fc_rho = 25.0)
 

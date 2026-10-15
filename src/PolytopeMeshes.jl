@@ -1,7 +1,7 @@
 """
     PolytopeMeshes
 
-Generation of polytopal (Voronoi/PEBI) meshes in 2D and 3D that conform to
+Generation of polytopal Voronoi meshes in 2D and 3D that conform to
 points, lines and surfaces. The site-placement algorithms are a port of the
 UPR module of MRST (Berge, Klemetsdal & Lie, Comput Geosci 23, 2019).
 
@@ -38,8 +38,8 @@ include("sites/surface_sites_3d.jl")
 include("triangulation/interface.jl")
 include("triangulation/distmesh.jl")
 include("sites/mlqt.jl")
-include("grids/pebi_2d.jl")
-include("grids/pebi_3d.jl")
+include("grids/voronoi_2d.jl")
+include("grids/voronoi_3d.jl")
 include("grids/exact_3d.jl")
 include("io/vtk.jl")
 include("plotting.jl")
@@ -67,8 +67,8 @@ export distmesh_2d, mlqt
 export TriangulationBackend, DistMeshBackend, triangulate_polygon
 
 # Grid generators (UPR ports)
-export clipped_pebi_grid_2d, pebi_grid_2d, composite_pebi_grid_2d
-export composite_pebi_grid_3d, mirrored_pebi_grid_3d
+export clipped_voronoi_grid_2d, voronoi_grid_2d, composite_voronoi_grid_2d
+export composite_voronoi_grid_3d, mirrored_voronoi_grid_3d
 export elliptic_surface_3d, surface_intersections_3d, line_grid_3d
 export surface_grid_3d, volume_grid_3d, surface_triangulation
 
