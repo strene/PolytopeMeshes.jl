@@ -76,6 +76,6 @@ export surface_grid_3d, volume_grid_3d, surface_triangulation
 export write_vtk, write_vtk_faces
 
 # Plotting (implemented in the Makie/GLMakie extensions)
-export plot_mesh, plot_mesh!, plot_cell_data, plot_cell_data!, plot_faces!, plot_interactive
+export plot_polymesh, plot_polymesh!, plot_polymesh_data, plot_polymesh_data!, plot_polymesh_faces!, plot_polymesh_interactive
 
 end # module PolytopeMeshes

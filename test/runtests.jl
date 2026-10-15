@@ -355,7 +355,7 @@ end
         @test length(t.triangles) == 2 * (16 + 4 * 8 + 16)
         # Without a Makie backend the plotting functions give an error
         @test !PolytopeMeshes.check_plotting_availability(throw = false)
-        @test_throws ErrorException plot_mesh(m2)
+        @test_throws ErrorException plot_polymesh(m2)
     end
 
     @testset "Output" begin
@@ -372,6 +372,9 @@ end
     end
 
     @testset "Jutul" begin
+        # Exported names must not clash with Jutul, which is used together
+        # with PolytopeMeshes
+        @test isempty(intersect(names(PolytopeMeshes), names(Jutul)))
         fl = [[[0.2, 0.2], [0.8, 0.8]]]
         wl = [[[0.2, 0.8], [0.8, 0.2]]]
         m2 = composite_pebi_grid_2d([1 / 10, 1 / 10], [1, 1]; cell_constraints = wl, face_constraints = fl)

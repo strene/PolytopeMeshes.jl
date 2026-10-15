@@ -9,7 +9,7 @@
 Check that a Makie backend is loaded (e.g. `using GLMakie` or `using
 CairoMakie`). With `throw = false` the availability is returned as a boolean.
 If `interactive = true`, warn if the backend is not interactive (GLMakie is
-recommended for [`plot_interactive`](@ref)).
+recommended for [`plot_polymesh_interactive`](@ref)).
 """
 function check_plotting_availability(; throw = true, interactive = false)
     ok = try
@@ -37,11 +37,11 @@ function current_backend_name end
 backend_is_interactive(::Val) = false
 plotting_is_interactive() = backend_is_interactive(Val(current_backend_name()))
 
-# Show a figure from plot_interactive. GLMakie opens a new window.
+# Show a figure from plot_polymesh_interactive. GLMakie opens a new window.
 display_interactive(fig, ::Val) = display(fig)
 
 """
-    plot_mesh(mesh; kwarg...)
+    plot_polymesh(mesh; kwarg...)
 
 Plot a [`PolytopalMesh`](@ref) in a new figure and return `(fig, ax, plt)`.
 The cells are colored by `color` (a color, or one value per cell), and the
@@ -59,52 +59,52 @@ and cells on cell constraints (wells). Requires a Makie backend.
 - `colorbar = true`: add a colorbar when `color` is a vector.
 - `size = (1000, 800)`: figure size.
 """
-function plot_mesh(arg...; kwarg...)
+function plot_polymesh(arg...; kwarg...)
     check_plotting_availability()
-    return plot_mesh_impl(arg...; kwarg...)
+    return plot_polymesh_impl(arg...; kwarg...)
 end
 
 """
-    plot_mesh!(ax, mesh; kwarg...)
+    plot_polymesh!(ax, mesh; kwarg...)
 
 Plot a mesh into an existing Makie axis (`Axis` in 2D, `Axis3` or `LScene` in
-3D). Takes the same keyword arguments as [`plot_mesh`](@ref), except
+3D). Takes the same keyword arguments as [`plot_polymesh`](@ref), except
 `colorbar` and `size`, and returns the plot object of the cells.
 """
-function plot_mesh!(arg...; kwarg...)
+function plot_polymesh!(arg...; kwarg...)
     check_plotting_availability()
-    return plot_mesh_impl!(arg...; kwarg...)
+    return plot_polymesh_impl!(arg...; kwarg...)
 end
 
 """
-    plot_cell_data(mesh, data; kwarg...)
+    plot_polymesh_data(mesh, data; kwarg...)
 
 Plot one value per cell on the mesh. Equivalent to
-`plot_mesh(mesh; color = data, kwarg...)`.
+`plot_polymesh(mesh; color = data, kwarg...)`.
 """
-plot_cell_data(mesh, data; kwarg...) = plot_mesh(mesh; color = data, kwarg...)
+plot_polymesh_data(mesh, data; kwarg...) = plot_polymesh(mesh; color = data, kwarg...)
 
 """
-    plot_cell_data!(ax, mesh, data; kwarg...)
+    plot_polymesh_data!(ax, mesh, data; kwarg...)
 
 Plot one value per cell on the mesh into an existing axis.
 """
-plot_cell_data!(ax, mesh, data; kwarg...) = plot_mesh!(ax, mesh; color = data, kwarg...)
+plot_polymesh_data!(ax, mesh, data; kwarg...) = plot_polymesh!(ax, mesh; color = data, kwarg...)
 
 """
-    plot_faces!(ax, mesh; faces = findall(>(0), mesh.face_tags), kwarg...)
+    plot_polymesh_faces!(ax, mesh; faces = findall(>(0), mesh.face_tags), kwarg...)
 
 Plot a subset of the faces (by default those on face constraints) into an
 existing axis, as lines in 2D and polygons in 3D, colored by `color` (a
 color or one value per face in `faces`).
 """
-function plot_faces!(arg...; kwarg...)
+function plot_polymesh_faces!(arg...; kwarg...)
     check_plotting_availability()
-    return plot_faces_impl!(arg...; kwarg...)
+    return plot_polymesh_faces_impl!(arg...; kwarg...)
 end
 
 """
-    plot_interactive(mesh; data = Dict(), kwarg...)
+    plot_polymesh_interactive(mesh; data = Dict(), kwarg...)
 
 Interactive viewer for a mesh (GLMakie recommended). The cells can be colored
 by the cell tags, cell volumes, cell index or any of the cell fields given
@@ -118,15 +118,15 @@ to the coordinate planes.
 
 Returns the figure. With GLMakie the figure opens in its own window.
 """
-function plot_interactive(arg...; kwarg...)
+function plot_polymesh_interactive(arg...; kwarg...)
     check_plotting_availability(interactive = true)
-    return plot_interactive_impl(arg...; kwarg...)
+    return plot_polymesh_interactive_impl(arg...; kwarg...)
 end
 
-function plot_mesh_impl end
-function plot_mesh_impl! end
-function plot_faces_impl! end
-function plot_interactive_impl end
+function plot_polymesh_impl end
+function plot_polymesh_impl! end
+function plot_polymesh_faces_impl! end
+function plot_polymesh_interactive_impl end
 
 # Makie-independent geometry for plotting ---------------------------------
 

@@ -23,7 +23,7 @@ function _range(v)
     return (Float32(lo), Float32(hi))
 end
 
-function PolytopeMeshes.plot_interactive_impl(m::PolytopalMesh{D};
+function PolytopeMeshes.plot_polymesh_interactive_impl(m::PolytopalMesh{D};
         data = Dict{String, Vector{Float64}}(),
         size = (1400, 900),
         colormap = :viridis,
@@ -109,7 +109,7 @@ function PolytopeMeshes.plot_interactive_impl(m::PolytopalMesh{D};
 
     # Constraints (all of them, independent of the selection)
     if any(>(0), m.face_tags)
-        PolytopeMeshes.plot_faces!(ax, m; colormap = constraint_colormap, visible = t_faces.active)
+        PolytopeMeshes.plot_polymesh_faces!(ax, m; colormap = constraint_colormap, visible = t_faces.active)
     end
     wells = findall(>(0), m.cell_tags)
     if !isempty(wells)

@@ -39,10 +39,10 @@ function _cell_selection(m::PolytopalMesh, cells)
     return sel
 end
 
-function PolytopeMeshes.plot_mesh_impl(m::PolytopalMesh; size = (1000, 800), colorbar = true, axis = (;), kwarg...)
+function PolytopeMeshes.plot_polymesh_impl(m::PolytopalMesh; size = (1000, 800), colorbar = true, axis = (;), kwarg...)
     fig = Figure(; size = size)
     ax = _new_axis(fig[1, 1], m; axis...)
-    p = PolytopeMeshes.plot_mesh!(ax, m; kwarg...)
+    p = PolytopeMeshes.plot_polymesh!(ax, m; kwarg...)
     color = get(kwarg, :color, nothing)
     if colorbar && color isa AbstractVector{<:Real}
         Colorbar(fig[1, 2], p)
@@ -50,7 +50,7 @@ function PolytopeMeshes.plot_mesh_impl(m::PolytopalMesh; size = (1000, 800), col
     return Makie.FigureAxisPlot(fig, ax, p)
 end
 
-function PolytopeMeshes.plot_mesh_impl!(ax, m::PolytopalMesh{D};
+function PolytopeMeshes.plot_polymesh_impl!(ax, m::PolytopalMesh{D};
         cells = nothing,
         color = :lightblue,
         colormap = :viridis,
@@ -88,7 +88,7 @@ end
 
 function _plot_constraints!(ax, m::PolytopalMesh, sel, colormap)
     faces = [f for f in findall(>(0), m.face_tags) if any(c -> c > 0 && sel[c], m.face_neighbors[f])]
-    pf = isempty(faces) ? nothing : PolytopeMeshes.plot_faces!(ax, m; faces = faces, colormap = colormap)
+    pf = isempty(faces) ? nothing : PolytopeMeshes.plot_polymesh_faces!(ax, m; faces = faces, colormap = colormap)
     cells = [c for c in findall(>(0), m.cell_tags) if sel[c]]
     pc = nothing
     if !isempty(cells)
@@ -98,7 +98,7 @@ function _plot_constraints!(ax, m::PolytopalMesh, sel, colormap)
     return pf, pc
 end
 
-function PolytopeMeshes.plot_faces_impl!(ax, m::PolytopalMesh{D};
+function PolytopeMeshes.plot_polymesh_faces_impl!(ax, m::PolytopalMesh{D};
         faces = findall(>(0), m.face_tags),
         color = nothing,
         colormap = :tab10,
